@@ -1,1 +1,1 @@
-export const DB_NAME=ComplaintSystem
+export const DB_NAME="ComplaintSystem"
