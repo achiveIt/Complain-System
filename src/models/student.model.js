@@ -5,7 +5,7 @@ const studentSchema= mongoose.Schema(
         name:{
             type:String,
             required: [true,"Kindly enter your Name"],
-            toLowerCase: true
+            toLowerCase: true         
         },
         rollNo:{
             type:String,
