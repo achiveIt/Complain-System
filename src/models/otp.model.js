@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
+import mongoose, {Schema} from "mongoose";
 
 
-const otpScema= mongoose.Schema({
+const otpScema = new Schema({
     email:{
         type:String,
         required:true,

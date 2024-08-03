@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, {Schema} from "mongoose";
 
-const wardenSchema= mongoose.Schema(
+const wardenSchema= new Schema(
     {
         name:{
             type:String,
@@ -24,8 +24,8 @@ const wardenSchema= mongoose.Schema(
         },
         hostel:{
             type:String,
-            enum: ['BH1','BH2','BH3','BH4','GH'], //required rakhnahai?
-        
+            enum: ['BH1','BH2','BH3','BH4','GH'], 
+            reuired: true,
             toLowerCase: true
         }
     }, 
