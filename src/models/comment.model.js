@@ -4,8 +4,18 @@ const commentSchema = new Schema(
     {
         owner:{
             type: Schema.Types.ObjectId,
-            ref: "Student"
+            ref: "Warden"
+        },
+        complaint_id:{
+            type: Schema.Types.ObjectId,
+            ref: "Complaint"
+        },
+        content:{
+            type: String
         }
+    },
+    {
+        timestamps: true
     }
 )
 

@@ -38,12 +38,8 @@ const complaintSchema = new Schema(
             enum: ['Not Read', 'Read', 'Assigned', 'Resolved'],
             required: true
         },
-        preferedDate:{
-            type: Date,// should we add a specific format?
-            reuired: true
-        },
-        preferedTime:{
-            type: Date,// should we add a specific format?
+        preferedDateandTime:{
+            type: Date,
             required: true
         }
 
