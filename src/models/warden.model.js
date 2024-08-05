@@ -1,4 +1,6 @@
 import mongoose, {Schema} from "mongoose";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 const wardenSchema= new Schema(
     {
@@ -27,9 +29,27 @@ const wardenSchema= new Schema(
             enum: ['BH1','BH2','BH3','BH4','GH'], 
             reuired: true,
             toLowerCase: true
+        },
+        password:{
+            type: String,
+            reuired: [true, 'Password is required']
+        },
+        refreshToken:{
+            type: String
         }
     }, 
     {timeStamps: true}
 )
+
+wardenSchema.pre("save", async function(next) {
+    if(!this.isModified("password")) return
+
+    this.password = await bcrypt.hash(this.password, 8)
+    next()
+})
+
+wardenSchema.methods.isPasswordCorrect = async function(password){
+    return await bcrypt.compare(password, this.password);
+}
 
 export const Warden = mongoose.model("Warden", wardenSchema);
