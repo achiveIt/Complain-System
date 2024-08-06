@@ -4,14 +4,12 @@ import mailSender from '../utils/MailSender.js';
 import bcrypt from 'bcrypt'
 import ApiError from '../utils/ApiError.js'
 import ApiResponse from '../utils/ApiResponse.js'
-import { Student } from "../models/student.model.js";
 
-const sendOtpVerificationMail= asyncHandler(async(req,res)=>{
-    const {email}= req.body;
+const sendOtpVerificationMail= async(email)=>{
 
     const otpGenerated = `${Math.floor(1000 + Math.random()*9000)}`;
 
-    const hashedOtp= await bcrypt(otpGenerated,8);
+    const hashedOtp=  await bcrypt.hash(otpGenerated, 8);
 
     const newOtp= await Otp.create({
         email,
@@ -26,7 +24,7 @@ const sendOtpVerificationMail= asyncHandler(async(req,res)=>{
     try {
         const title= "Email Verfication";
         const body= `<h1>Please confirm your Email</h1>
-                     <p>Here is your Otp Code: ${otp}`
+                     <p>Here is your Otp Code: ${otpGenerated}`
 
         const mailResponse = mailSender(email,title,body);
          
@@ -35,13 +33,9 @@ const sendOtpVerificationMail= asyncHandler(async(req,res)=>{
         console.log("Error occurred while sending email: ", error);
         throw error;
     }
+}
 
-    res.status(200).json(
-        new ApiResponse(200,{},"Otp Verification Mail Send!!")
-    )
-})
-
-const verifyOtp = asyncHandler(async(email,otp)=>{
+const verifyOtp = async(email,otp)=>{
     const checkOtp = await Otp.findOne({
         email
     })
@@ -54,15 +48,16 @@ const verifyOtp = asyncHandler(async(email,otp)=>{
     const expiryTime= checkOtp.expiresAt;
 
     if(expiryTime<currentTime){
-        return res.status(200).json(
-            new ApiResponse(200,{},"Otp Expired!! Regenerate Otp Verfication Mail ")
-        )
-        // throw new ApiError(400,"Otp is expired")
+        throw new ApiError(400,"Otp is expired!! Regenerate the Verification Mail")
     }
-
-    const hashedOtp = checkOtp.expiresAt;
+    console.log("Comparing");
+    
+    const hashedOtp = checkOtp.otpGenerated;
+    console.log(hashedOtp);
+    
     const isCorrectOtp = await bcrypt.compare(otp,hashedOtp);
-
+    console.log(isCorrectOtp);
+    
     if(!isCorrectOtp){
         throw new ApiError(400,"OTP provided is wrong!!")
     }
@@ -72,8 +67,7 @@ const verifyOtp = asyncHandler(async(email,otp)=>{
         email
     })
     return true;
-})
-
+}
 
 export {
     sendOtpVerificationMail,

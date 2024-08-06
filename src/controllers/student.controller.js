@@ -49,8 +49,12 @@ const registerStudent =  asyncHandler(async(req,res)=>{
         throw new ApiError(400,"Email is not in correct form")
     }
 
-    if(isSame(email,rollNo)){
-        throw new ApiError(400,"Email and RollNumber are not matching")
+    if(phoneNo.length!=10){
+        throw new ApiError(400,"Phone Number must be of 10 digits")
+    }
+
+    if(!isSame(email,rollNo)){
+        throw new ApiError(400,"Email and Roll Number are not matching")
     }
 
     const checkStudentPresntOrNot= await Student.findOne({
@@ -67,11 +71,12 @@ const registerStudent =  asyncHandler(async(req,res)=>{
         email,
         phoneNo,
         password,
-    }).select("-password -refreshToken")
+    })
 
-
+    await newStudent.save();
+    
     //Nodemailer OTP verification 
-    sendOtpVerificationMail(email);
+    await sendOtpVerificationMail(email);
 
     return res.status(200).json(
         new ApiResponse(200,{},"Email Verification Mail Sent!!")
@@ -80,9 +85,11 @@ const registerStudent =  asyncHandler(async(req,res)=>{
 
 const verifyStudentOtp = asyncHandler(async(req,res)=>{
     const {email,otp}= req.body;
-
-    //const isValidOtp= await verifyOtp(email,otp);
-    if(verifyOtp(email,otp)){
+    console.log(`Email:${email} , OTP:${otp}`);
+    const response= await verifyOtp(email,otp);
+    console.log(`RESPONSE: ${response}`);
+    
+    if(response){
         try {
             const newStudent = await Student.findOne({
                 email
@@ -96,13 +103,17 @@ const verifyStudentOtp = asyncHandler(async(req,res)=>{
         
             await newStudent.save();
 
-            return res.status(200,newStudent,"Student registered Successfully!!")
+            return res.status(200).json( 
+                new ApiResponse(200,newStudent,"Student registered Successfully!!")
+            )
         } catch (error) {
-            console.log("Error while verifying otp");            
+            return res.status(500).json( 
+                new ApiResponse(500,{},"Error while Email Verification")
+            )    
         }
     }
     else{
-        return res.status(200,{},"WrongOTP")
+        return res.status(200,{},"Wrong OTP")
     }
 })
 export {
