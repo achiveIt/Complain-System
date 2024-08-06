@@ -21,19 +21,22 @@ const isSame = (email,rollNo)=>{
 }
 
 const registerStudent =  asyncHandler(async(req,res)=>{
-    const {name,rollNo,email,phoneNo} = req.body;
+    const {name,rollNo,email,phoneNo,password} = req.body;
 
     if(!name || name.trim()===""){
-        throw new ApiError(400,"Name Field is empty!!")
+        throw new ApiError(400,"Name cannot be empty!!")
     }
     if(!rollNo || rollNo.trim()===""){
-        throw new ApiError(400,"Roll Number Field is empty!!")
+        throw new ApiError(400,"Roll Number cannot be empty!!")
     }
     if(!email || email.trim()===""){
-        throw new ApiError(400,"Email Field is empty!!")
+        throw new ApiError(400,"Email cannot be empty!!")
     }
     if(!phoneNo || phoneNo.trim()===""){
-        throw new ApiError(400,"Phone Number Field is empty!!")
+        throw new ApiError(400,"Phone Number cannot be empty!!")
+    }
+    if(!password || password.trim()===""){
+        throw new ApiError(400,"Password cannot be empty!!")
     }
 
     if(!checkRollNo(rollNo)){

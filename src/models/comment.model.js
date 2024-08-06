@@ -11,7 +11,7 @@ const commentSchema = new Schema(
             ref: "Complaint"
         },
         content:{
-            type: String
+            type: String  //required??
         }
     },
     {
