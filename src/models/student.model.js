@@ -29,6 +29,11 @@ const studentSchema = new Schema(
         },
         refreshToken:{
             type: String
+        },
+        isVerified:{
+            type:Boolean,
+            default:false,
+            required:true
         }
     }, 
     {timeStamps: true}

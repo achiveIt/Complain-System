@@ -1,6 +1,8 @@
 import { Student } from "../models/student.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js"
+import { sendOtpVerificationMail, verifyOtp } from "./otp.controller.js";
+import ApiResponse from "../utils/ApiResponse.js";
 
 
 const checkRollNo =  (rollNo)=>{
@@ -59,11 +61,51 @@ const registerStudent =  asyncHandler(async(req,res)=>{
         throw new ApiError(400,"Student is already registered! Kindly Sign In")
     }
 
-    
+    const newStudent = new Student({
+        name,
+        rollNo,
+        email,
+        phoneNo,
+        password,
+    }).select("-password -refreshToken")
+
+
     //Nodemailer OTP verification 
+    sendOtpVerificationMail(email);
+
+    return res.status(200).json(
+        new ApiResponse(200,{},"Email Verification Mail Sent!!")
+    )
 })
 
+const verifyStudentOtp = asyncHandler(async(req,res)=>{
+    const {email,otp}= req.body;
 
+    //const isValidOtp= await verifyOtp(email,otp);
+    if(verifyOtp(email,otp)){
+        try {
+            const newStudent = await Student.findOne({
+                email
+            })
+        
+            if(!newStudent){
+                throw new ApiError(500,"Error while fetching student")
+            }
+        
+            newStudent.isVerified= true;
+        
+            await newStudent.save();
+
+            return res.status(200,newStudent,"Student registered Successfully!!")
+        } catch (error) {
+            console.log("Error while verifying otp");            
+        }
+    }
+    else{
+        return res.status(200,{},"WrongOTP")
+    }
+})
 export {
-    registerStudent
+    registerStudent,
+    verifyStudentOtp
 }

@@ -4,6 +4,7 @@ import mailSender from '../utils/MailSender.js';
 import bcrypt from 'bcrypt'
 import ApiError from '../utils/ApiError.js'
 import ApiResponse from '../utils/ApiResponse.js'
+import { Student } from "../models/student.model.js";
 
 const sendOtpVerificationMail= asyncHandler(async(req,res)=>{
     const {email}= req.body;
@@ -40,9 +41,7 @@ const sendOtpVerificationMail= asyncHandler(async(req,res)=>{
     )
 })
 
-const verifyOtp = asyncHandler(async(req,res)=>{
-    const {email,otp}= req.body
-
+const verifyOtp = asyncHandler(async(email,otp)=>{
     const checkOtp = await Otp.findOne({
         email
     })
@@ -72,11 +71,7 @@ const verifyOtp = asyncHandler(async(req,res)=>{
     await Otp.deleteMany({
         email
     })
-
-    return res.status(200).json(
-        new ApiResponse(200,{},"User Successfully Verified")
-    )
-
+    return true;
 })
 
 

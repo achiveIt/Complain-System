@@ -20,5 +20,5 @@ const otpSchema = new Schema({
     }    
 })
 
-export default Otp = mongoose.model("Otp",otpSchema);
+export const Otp = mongoose.model("Otp",otpSchema);
 
