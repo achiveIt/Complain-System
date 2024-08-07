@@ -4,7 +4,6 @@ import ApiError from "../utils/ApiError.js"
 import { sendOtpVerificationMail, verifyOtp } from "./otp.controller.js";
 import ApiResponse from "../utils/ApiResponse.js";
 
-
 const checkRollNo =  (rollNo)=>{
     let regex = /^\d{2}[a-z]{3}\d{3}$/;
     return regex.test(rollNo);
@@ -57,9 +56,7 @@ const registerStudent =  asyncHandler(async(req,res)=>{
         throw new ApiError(400,"Email and Roll Number are not matching")
     }
 
-    const checkStudentPresntOrNot= await Student.findOne({
-        email
-    })
+    const checkStudentPresntOrNot= await Student.findOne({email})
 
     if(checkStudentPresntOrNot){
         throw new ApiError(400,"Student is already registered! Kindly Sign In")
@@ -84,10 +81,9 @@ const registerStudent =  asyncHandler(async(req,res)=>{
 })
 
 const verifyStudentOtp = asyncHandler(async(req,res)=>{
-    const {email,otp}= req.body;
-    console.log(`Email:${email} , OTP:${otp}`);
-    const response= await verifyOtp(email,otp);
-    console.log(`RESPONSE: ${response}`);
+    const {email,otp} = req.body;
+    
+    const response = await verifyOtp(email,otp);
     
     if(response){
         try {
@@ -116,6 +112,7 @@ const verifyStudentOtp = asyncHandler(async(req,res)=>{
         return res.status(200,{},"Wrong OTP")
     }
 })
+
 export {
     registerStudent,
     verifyStudentOtp
