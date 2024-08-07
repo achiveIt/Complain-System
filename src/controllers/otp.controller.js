@@ -1,24 +1,22 @@
 import {Otp} from "../models/otp.model.js";
-import asyncHandler from "../utils/asyncHandler.js";
 import mailSender from '../utils/MailSender.js';
 import bcrypt from 'bcrypt'
 import ApiError from '../utils/ApiError.js'
-import ApiResponse from '../utils/ApiResponse.js'
 
-const sendOtpVerificationMail= async(email)=>{
+const sendOtpVerificationMail = async(email)=>{
 
     const otpGenerated = `${Math.floor(1000 + Math.random()*9000)}`;
 
-    const hashedOtp=  await bcrypt.hash(otpGenerated, 8);
+    const hashedOtp =  await bcrypt.hash(otpGenerated, 8);
 
-    const newOtp= await Otp.create({
+    const newOtp = await Otp.create({
         email,
         otpGenerated:hashedOtp,
         expiresAt: Date.now() + (5*60000)
     })
 
     if(!newOtp){
-        throw new ApiError(500,"Error while saving Otp")
+        throw new ApiError(500,"Error while generating OTP")
     }
 
     try {
@@ -44,19 +42,16 @@ const verifyOtp = async(email,otp)=>{
         throw new ApiError(400,"Email is not yet registered!!");
     }
 
-    const currentTime= Date.now();
-    const expiryTime= checkOtp.expiresAt;
+    const currentTime = Date.now();
+    const expiryTime  = checkOtp.expiresAt;
 
-    if(expiryTime<currentTime){
+    if(expiryTime < currentTime){
         throw new ApiError(400,"Otp is expired!! Regenerate the Verification Mail")
     }
-    console.log("Comparing");
     
     const hashedOtp = checkOtp.otpGenerated;
-    console.log(hashedOtp);
     
     const isCorrectOtp = await bcrypt.compare(otp,hashedOtp);
-    console.log(isCorrectOtp);
     
     if(!isCorrectOtp){
         throw new ApiError(400,"OTP provided is wrong!!")

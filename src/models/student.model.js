@@ -5,22 +5,22 @@ import bcrypt from "bcrypt";
 const studentSchema = new Schema(
     {
         name:{
-            type:String,
+            type: String,
             required: [true,"Kindly enter your Name"],
             toLowerCase: true         
         },
         rollNo:{
-            type:String,
+            type: String,
             required: [true,"Kindly enter your Roll Number"],
             toLowerCase: true
         },
         email:{
-            type:String,
+            type: String,
             required: [true,"Kindly enter your Email"],
             toLowerCase: true
         },
         phoneNo:{
-            type:String,
+            type: String,
             required: [true,"Kindly enter your Phone Numeber"],
         },
         password:{
@@ -31,12 +31,14 @@ const studentSchema = new Schema(
             type: String
         },
         isVerified:{
-            type:Boolean,
-            default:false,
-            required:true
+            type: Boolean,
+            default: false,
+            required: true
         }
     }, 
-    {timeStamps: true}
+    {
+        timeStamps: true
+    }
 )
 
 studentSchema.pre("save", async function (next) {
