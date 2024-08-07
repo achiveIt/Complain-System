@@ -9,9 +9,9 @@ const sendOtpVerificationMail= async(email)=>{
 
     const otpGenerated = `${Math.floor(1000 + Math.random()*9000)}`;
 
-    const hashedOtp=  await bcrypt.hash(otpGenerated, 8);
+    const hashedOtp =  await bcrypt.hash(otpGenerated, 8);
 
-    const newOtp= await Otp.create({
+    const newOtp = await Otp.create({
         email,
         otpGenerated:hashedOtp,
         expiresAt: Date.now() + (5*60000)
@@ -22,8 +22,8 @@ const sendOtpVerificationMail= async(email)=>{
     }
 
     try {
-        const title= "Email Verfication";
-        const body= `<h1>Please confirm your Email</h1>
+        const title = "Email Verfication";
+        const body = `<h1>Please confirm your Email</h1>
                      <p>Here is your Otp Code: ${otpGenerated}`
 
         const mailResponse = mailSender(email,title,body);
@@ -44,8 +44,8 @@ const verifyOtp = async(email,otp)=>{
         throw new ApiError(400,"Email is not yet registered!!");
     }
 
-    const currentTime= Date.now();
-    const expiryTime= checkOtp.expiresAt;
+    const currentTime = Date.now();
+    const expiryTime = checkOtp.expiresAt;
 
     if(expiryTime<currentTime){
         throw new ApiError(400,"Otp is expired!! Regenerate the Verification Mail")
