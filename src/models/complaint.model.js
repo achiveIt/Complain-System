@@ -38,6 +38,16 @@ const complaintSchema = new Schema(
             enum: ['Not Read', 'Read', 'Assigned', 'Resolved'],
             required: true
         },
+        reminder:{
+            type: Number,
+            default: 0,
+            required: true
+        },
+        reminderDates: [
+            {
+                type: Date
+            }
+        ],
         preferedDateandTime:{
             type: Date,
             required: true
