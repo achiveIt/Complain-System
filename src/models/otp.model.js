@@ -2,13 +2,13 @@ import mongoose, {Schema} from "mongoose";
 
 const otpSchema = new Schema({
     email:{
-        type:String,
-        required:true,
-        toLowerCase:true
+        type: String,
+        required: true,
+        toLowerCase: true
     },
     otpGenerated:{
-        type:String,
-        required:true
+        type: String,
+        required: true
     },
     expiresAt: {
         type: Date,

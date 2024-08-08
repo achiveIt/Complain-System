@@ -24,19 +24,19 @@ const isSame = (email,rollNo)=>{
 const registerStudent =  asyncHandler(async(req,res)=>{
     const {name,rollNo,email,phoneNo,password} = req.body;
 
-    if(!name || name.trim()===""){
+    if(!name || name.trim() === ""){
         throw new ApiError(400,"Name cannot be empty!!")
     }
-    if(!rollNo || rollNo.trim()===""){
+    if(!rollNo || rollNo.trim() === ""){
         throw new ApiError(400,"Roll Number cannot be empty!!")
     }
-    if(!email || email.trim()===""){
+    if(!email || email.trim() === ""){
         throw new ApiError(400,"Email cannot be empty!!")
     }
-    if(!phoneNo || phoneNo.trim()===""){
+    if(!phoneNo || phoneNo.trim() === ""){
         throw new ApiError(400,"Phone Number cannot be empty!!")
     }
-    if(!password || password.trim()===""){
+    if(!password || password.trim() === ""){
         throw new ApiError(400,"Password cannot be empty!!")
     }
 
@@ -48,7 +48,7 @@ const registerStudent =  asyncHandler(async(req,res)=>{
         throw new ApiError(400,"Email is not in correct form")
     }
 
-    if(phoneNo.length!=10){
+    if(phoneNo.length != 10){
         throw new ApiError(400,"Phone Number must be of 10 digits")
     }
 
@@ -95,7 +95,7 @@ const verifyStudentOtp = asyncHandler(async(req,res)=>{
                 throw new ApiError(500,"Error while fetching student")
             }
         
-            newStudent.isVerified= true;
+            newStudent.isVerified = true;
         
             await newStudent.save();
 

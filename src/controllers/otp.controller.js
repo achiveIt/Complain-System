@@ -1,11 +1,9 @@
 import {Otp} from "../models/otp.model.js";
-import asyncHandler from "../utils/asyncHandler.js";
 import mailSender from '../utils/MailSender.js';
 import bcrypt from 'bcrypt'
 import ApiError from '../utils/ApiError.js'
-import ApiResponse from '../utils/ApiResponse.js'
 
-const sendOtpVerificationMail= async(email)=>{
+const sendOtpVerificationMail = async(email)=>{
 
     const otpGenerated = `${Math.floor(1000 + Math.random()*9000)}`;
 

@@ -12,12 +12,14 @@ const studentSchema = new Schema(
         rollNo:{
             type: String,
             required: [true,"Kindly enter your Roll Number"],
-            toLowerCase: true
+            toLowerCase: true,
+            unique: true
         },
         email:{
             type: String,
             required: [true,"Kindly enter your Email"],
-            toLowerCase: true
+            toLowerCase: true,
+            unique: true
         },
         phoneNo:{
             type: String,
