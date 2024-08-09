@@ -1,6 +1,7 @@
 import mongoose, {Schema} from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { type } from "os";
 
 const wardenSchema= new Schema(
     {
@@ -34,6 +35,11 @@ const wardenSchema= new Schema(
         password:{
             type: String,
             reuired: [true, 'Password is required']
+        },
+        isVerified:{
+            type: Boolean,
+            default: false,
+            required: true
         },
         refreshToken:{
             type: String

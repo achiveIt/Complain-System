@@ -3,8 +3,6 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js"
 import { sendOtpVerificationMail, verifyOtp } from "./otp.controller.js";
 import ApiResponse from "../utils/ApiResponse.js";
-import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
 
 const checkRollNo =  (rollNo)=>{
     let regex = /^\d{2}[a-z]{3}\d{3}$/;
@@ -54,10 +52,6 @@ const registerStudent =  asyncHandler(async(req,res)=>{
     if(!phoneNo || phoneNo.trim() === ""){
         throw new ApiError(400,"Phone Number cannot be empty!!")
     }
-    if(!password || password.trim() === ""){
-        throw new ApiError(400,"Password cannot be empty!!")
-    }
-
     if(!checkRollNo(rollNo)){
         throw new ApiError(400,"Roll Number is not in correct form")
     }
@@ -72,6 +66,9 @@ const registerStudent =  asyncHandler(async(req,res)=>{
 
     if(!isSame(email,rollNo)){
         throw new ApiError(400,"Email and Roll Number are not matching")
+    }
+    if(!password || password.trim() === ""){
+        throw new ApiError(400,"Password cannot be empty!!")
     }
 
     const checkStudentPresntOrNot= await Student.findOne({email})
@@ -131,7 +128,52 @@ const verifyStudentOtp = asyncHandler(async(req,res)=>{
     }
 })
 
+
+
+const loginStudent = asyncHandler(async(req,res)=>{
+    const {email,password} = req.body
+
+    if(!email){
+        throw new ApiError(400,"Email Field is Required")
+    }
+
+    if(!password){
+        throw new ApiError(400,"Password is Required")
+    }
+
+    const checkIfRegistered = await Student.findOne({email});
+
+    if(!checkIfRegistered){
+        throw new ApiError(404,"Kindly register first")
+    }
+
+    if(! await Student.isPasswordCorrect(password)){
+        throw new ApiError(401,"Incorrect Password")
+    }
+
+    const {accessToken , refreshToken} = generateAccessAndRefreshToken(checkIfRegistered._id);
+
+    const updatedStudent=await Student.findById(checkIfRegistered._id).select(
+        "-password -refreshToken"
+    )
+
+    const options={
+        httpOnly: true,
+        secure: true
+    }
+    
+    return res
+    .status(200)
+    .cookie("accessToken",accessToken,options)
+    .cookie("refreshToken",refreshToken,options)
+    .json(
+        new ApiResponse(200,{updatedStudent,accessToken,refreshToken},"Logged in successfully!!")
+    )
+})
+
+
 export {
     registerStudent,
-    verifyStudentOtp
+    verifyStudentOtp,
+    loginStudent
 }
