@@ -3,8 +3,6 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js"
 import { sendOtpVerificationMail, verifyOtp } from "./otp.controller.js";
 import ApiResponse from "../utils/ApiResponse.js";
-import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
 
 const checkRollNo =  (rollNo)=>{
     let regex = /^\d{2}[a-z]{3}\d{3}$/;
@@ -54,10 +52,6 @@ const registerStudent =  asyncHandler(async(req,res)=>{
     if(!phoneNo || phoneNo.trim() === ""){
         throw new ApiError(400,"Phone Number cannot be empty!!")
     }
-    if(!password || password.trim() === ""){
-        throw new ApiError(400,"Password cannot be empty!!")
-    }
-
     if(!checkRollNo(rollNo)){
         throw new ApiError(400,"Roll Number is not in correct form")
     }
@@ -72,6 +66,9 @@ const registerStudent =  asyncHandler(async(req,res)=>{
 
     if(!isSame(email,rollNo)){
         throw new ApiError(400,"Email and Roll Number are not matching")
+    }
+    if(!password || password.trim() === ""){
+        throw new ApiError(400,"Password cannot be empty!!")
     }
 
     const checkStudentPresntOrNot= await Student.findOne({email})
