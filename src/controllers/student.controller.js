@@ -1,6 +1,7 @@
 import { Student } from "../models/student.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js"
+import cookieParser from "cookie-parser";
 import { sendOtpVerificationMail, verifyOtp } from "./otp.controller.js";
 import ApiResponse from "../utils/ApiResponse.js";
 
@@ -19,6 +20,21 @@ const isSame = (email,rollNo)=>{
         ind++;
     }
     return true;
+}
+
+const generateAccessRefreshToken = async(studentId)=>{
+    try {
+        const student = await Student.findById(studentId)
+        const accessToken = student.generateAccessToken();
+        const refreshToken = student.generateRefreshToken();
+
+        student.refreshToken= refreshToken
+        await student.save({validateBeforeSave: false})
+        return {accessToken,refreshToken}
+
+    } catch (error) {
+        throw new ApiError(500,"Something went wrong while generating refresh and access token")
+    }
 }
 
 const registerStudent =  asyncHandler(async(req,res)=>{
@@ -113,7 +129,49 @@ const verifyStudentOtp = asyncHandler(async(req,res)=>{
     }
 })
 
+const loginStudent = asyncHandler(async(req,res)=>{
+    const {email,password} = req.body
+
+    if(!email){
+        throw new ApiError(400,"Email Field is Required")
+    }
+
+    if(!password){
+        throw new ApiError(400,"Password is Required")
+    }
+
+    const checkIfRegistered = await Student.findOne({email});
+
+    if(!checkIfRegistered){
+        throw new ApiError(404,"Kindly register first")
+    }
+
+    if(! await Student.isPasswordCorrect(password)){
+        throw new ApiError(401,"Incorrect Password")
+    }
+
+    const {accessToken , refreshToken} = generateAccessRefreshToken(checkIfRegistered._id);
+
+    const updatedStudent=await Student.findById(checkIfRegistered._id).select(
+        "-password -refreshToken"
+    )
+
+    const options={
+        httpOnly: true,
+        secure: true
+    }
+    
+    return res
+    .status(200)
+    .cookie("accessToken",accessToken,options)
+    .cookie("refreshToken",refreshToken,options)
+    .json(
+        new ApiResponse(200,{updatedStudent,accessToken,refreshToken},"Logged in successfully!!")
+    )
+})
+
 export {
     registerStudent,
-    verifyStudentOtp
+    verifyStudentOtp,
+    loginStudent
 }
