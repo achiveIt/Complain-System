@@ -3,6 +3,8 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js"
 import { sendOtpVerificationMail, verifyOtp } from "./otp.controller.js";
 import ApiResponse from "../utils/ApiResponse.js";
+import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const checkRollNo =  (rollNo)=>{
     let regex = /^\d{2}[a-z]{3}\d{3}$/;
@@ -19,6 +21,22 @@ const isSame = (email,rollNo)=>{
         ind++;
     }
     return true;
+}
+
+const generateAccessAndRefreshToken = async(studentId) => {
+    try {
+        const student = await Student.findById(studentId)
+        const accessToken = student.generateAccessToken()
+        const refreshToken = student.generateRefreshToken()
+
+        student.refreshToken = refreshToken
+        await student.save( {validateBeforeSave: false} )
+
+        return {accessToken, refreshToken}
+        
+    } catch (error) {
+        throw new ApiError(500, "Error while generating access and refresh token")
+    }
 }
 
 const registerStudent =  asyncHandler(async(req,res)=>{
