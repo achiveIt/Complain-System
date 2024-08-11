@@ -36,6 +36,7 @@ const complaintSchema = new Schema(
         status:{
             type: String,
             enum: ['Not Read', 'Read', 'Assigned', 'Resolved'],
+            default: 'Not Read',
             required: true
         },
         reminder:{
