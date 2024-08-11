@@ -12,7 +12,7 @@ const checkEmail = (email)=>{
     let regex= /^\d{2}[a-z]{3}\d{3}@lnmiit\.ac\.in$/;
     return regex.test(email);
 }
-const isSame = (email,rollNo)=>{
+const isSameEmailRollNo = (email,rollNo)=>{
     let ind=0;
     for (let index = 0; index < rollNo.length; index++) {
         if(rollNo[index]!=email[ind]) return false;
@@ -64,7 +64,7 @@ const registerStudent =  asyncHandler(async(req,res)=>{
         throw new ApiError(400,"Phone Number must be of 10 digits")
     }
 
-    if(!isSame(email,rollNo)){
+    if(!isSameEmailRollNo(email,rollNo)){
         throw new ApiError(400,"Email and Roll Number are not matching")
     }
     if(!password || password.trim() === ""){
@@ -102,9 +102,7 @@ const verifyStudentOtp = asyncHandler(async(req,res)=>{
     
     if(response){
         try {
-            const newStudent = await Student.findOne({
-                email
-            })
+            const newStudent = await Student.findOne({email})
         
             if(!newStudent){
                 throw new ApiError(500,"Error while fetching student")
@@ -112,7 +110,7 @@ const verifyStudentOtp = asyncHandler(async(req,res)=>{
         
             newStudent.isVerified = true;
         
-            await newStudent.save();
+            await newStudent.save( {validateBeforeSave: false} );
 
             return res.status(200).json( 
                 new ApiResponse(200,newStudent,"Student registered Successfully!!")
@@ -128,8 +126,6 @@ const verifyStudentOtp = asyncHandler(async(req,res)=>{
     }
 })
 
-
-
 const loginStudent = asyncHandler(async(req,res)=>{
     const {email,password} = req.body
 
@@ -141,21 +137,22 @@ const loginStudent = asyncHandler(async(req,res)=>{
         throw new ApiError(400,"Password is Required")
     }
 
-    const checkIfRegistered = await Student.findOne({email});
+    const student = await Student.findOne({email});
 
-    if(!checkIfRegistered){
-        throw new ApiError(404,"Kindly register first")
+    if(!student){
+        throw new ApiError(404,"Kindly register first!!")
     }
 
-    if(! await Student.isPasswordCorrect(password)){
+    const isPasswordValid = await student.isPasswordCorrect(password)
+
+    if(!isPasswordValid){
         throw new ApiError(401,"Incorrect Password")
     }
 
-    const {accessToken , refreshToken} = generateAccessAndRefreshToken(checkIfRegistered._id);
+    const {accessToken , refreshToken} = await 
+    generateAccessAndRefreshToken(student._id);
 
-    const updatedStudent=await Student.findById(checkIfRegistered._id).select(
-        "-password -refreshToken"
-    )
+    const updatedStudent = await Student.findById(student._id).select("-password -refreshToken" ) //doubt
 
     const options={
         httpOnly: true,
@@ -164,8 +161,8 @@ const loginStudent = asyncHandler(async(req,res)=>{
     
     return res
     .status(200)
-    .cookie("accessToken",accessToken,options)
-    .cookie("refreshToken",refreshToken,options)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
     .json(
         new ApiResponse(200,{updatedStudent,accessToken,refreshToken},"Logged in successfully!!")
     )
