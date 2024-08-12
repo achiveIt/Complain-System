@@ -133,6 +133,10 @@ const loginStudent = asyncHandler(async(req,res)=>{
         throw new ApiError(400,"Email Field is Required")
     }
 
+    if(!checkEmail(email)){
+        throw new ApiError(400, "Provided Email is not valid")
+    }
+
     if(!password){
         throw new ApiError(400,"Password is Required")
     }
@@ -141,6 +145,10 @@ const loginStudent = asyncHandler(async(req,res)=>{
 
     if(!student){
         throw new ApiError(404,"Kindly register first!!")
+    }
+
+    if(!student.isVerified){
+        throw new ApiError(404, "Verify your Email first!!")
     }
 
     const isPasswordValid = await student.isPasswordCorrect(password)
