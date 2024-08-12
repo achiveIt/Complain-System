@@ -172,8 +172,36 @@ const loginWarden = asyncHandler(async(req,res)=>{
     )
 })
 
+const logOutWarden = asyncHandler(async(req,res)=>{
+    const wardenId = req.user?._id
+
+    await Warden.findByIdAndUpdate(
+        wardenId,
+        {
+            $set:{
+                refreshToken: undefined
+            }
+        },
+        {
+            new: true
+        }
+    )
+
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
+
+    return res
+    .status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new ApiResponse(200,{},"User Logged Out"))
+})
+
 export{
     registerWarden,
     verifyWardenOtp,
-    loginWarden
+    loginWarden,
+    logOutWarden
 }

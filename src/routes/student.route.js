@@ -9,4 +9,5 @@ router.route('/verifyMail').patch(verifyStudentOtp);
 router.route('/login').post(loginStudent);
 router.route('/logout').post(verifyJWT,logoutStudent);
 
+
 export default router
