@@ -4,11 +4,11 @@ import ApiError from "../utils/ApiError.js"
 import { sendOtpVerificationMail, verifyOtp } from "./otp.controller.js";
 import ApiResponse from "../utils/ApiResponse.js";
 
-const checkRollNo =  (rollNo)=>{
+const checkRollNo =  (rollNo) => {
     let regex = /^\d{2}[a-z]{3}\d{3}$/;
     return regex.test(rollNo);
 }
-const checkEmail = (email)=>{
+const checkEmail = (email) => {
     let regex= /^\d{2}[a-z]{3}\d{3}@lnmiit\.ac\.in$/;
     return regex.test(email);
 }
@@ -21,7 +21,7 @@ const isSameEmailRollNo = (email,rollNo)=>{
     return true;
 }
 
-const generateAccessAndRefreshToken = async(studentId) => {
+const generateAccessAndRefreshToken = async (studentId) => {
     try {
         const student = await Student.findById(studentId)
         const accessToken = student.generateAccessToken()
@@ -37,7 +37,7 @@ const generateAccessAndRefreshToken = async(studentId) => {
     }
 }
 
-const registerStudent =  asyncHandler(async(req,res)=>{
+const registerStudent =  asyncHandler(async (req, res) => {
     const {name,rollNo,email,phoneNo,password} = req.body;
 
     if(!name || name.trim() === ""){
@@ -95,7 +95,7 @@ const registerStudent =  asyncHandler(async(req,res)=>{
     )
 })
 
-const verifyStudentOtp = asyncHandler(async(req,res)=>{
+const verifyStudentOtp = asyncHandler(async (req, res) => {
     const {email,otp} = req.body;
     
     const response = await verifyOtp(email,otp);
@@ -126,7 +126,7 @@ const verifyStudentOtp = asyncHandler(async(req,res)=>{
     }
 })
 
-const loginStudent = asyncHandler(async(req,res)=>{
+const loginStudent = asyncHandler(async (req, res) => {
     const {email,password} = req.body
 
     if(!email){
@@ -171,11 +171,11 @@ const loginStudent = asyncHandler(async(req,res)=>{
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
     .json(
-        new ApiResponse(200,{updatedStudent,accessToken,refreshToken},"Logged in successfully!!")
+        new ApiResponse(200,{updatedStudent},"Logged in successfully!!")
     )
 })
 
-const logoutStudent = asyncHandler(async(req,res)=>{
+const logoutStudent = asyncHandler(async (req, res) => {
     const studentId = req.user?._id
 
     await Student.findByIdAndUpdate(

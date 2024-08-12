@@ -4,15 +4,15 @@ import ApiResponse from '../utils/ApiResponse.js';
 import asyncHandler from '../utils/asyncHandler.js'
 import { sendOtpVerificationMail, verifyOtp } from './otp.controller.js';
 
-const checkStudentEmail = (email)=>{
+const checkIfStudentEmail = (email) => {
     let regex= /^\d{2}[a-z]{3}\d{3}@lnmiit\.ac\.in$/;
     return regex.test(email);
 }
-const checkEmail = (email)=>{
+const checkEmail = (email) => {
     let regex = /^[a-zA-Z][a-zA-Z][a-zA-Z0-9._%+-]*@lnmiit\.ac\.in$/
     return regex.test(email);
 }
-const generateAccessAndRefreshToken = async(wardenId) => {
+const generateAccessAndRefreshToken = async (wardenId) => {
     try {
         const warden = await Warden.findById(wardenId)
         const accessToken = Warden.generateAccessToken()
@@ -28,7 +28,7 @@ const generateAccessAndRefreshToken = async(wardenId) => {
     }
 }
 
-const registerWarden = asyncHandler(async(req,res)=>{
+const registerWarden = asyncHandler(async (req, res) => {
     const {name,position,phoneNo,email,hostel,password}= req.body;
 
     if(
@@ -41,7 +41,7 @@ const registerWarden = asyncHandler(async(req,res)=>{
         throw new ApiError(400, "Phone Number must be 10 digits long")
     }
 
-    if(checkStudentEmail(email)){
+    if(checkIfStudentEmail(email)){
         throw new ApiError(400, "Kindly register through Student Register")  //useful?
     }
 
@@ -77,7 +77,7 @@ const registerWarden = asyncHandler(async(req,res)=>{
     )
 })
 
-const verifyWardenOtp = asyncHandler(async(req,res)=>{
+const verifyWardenOtp = asyncHandler(async (req, res) => {
     const {email , otp} = req.body
 
     if(!email || email.trim() === " "){
@@ -119,14 +119,14 @@ const verifyWardenOtp = asyncHandler(async(req,res)=>{
     }
 })
 
-const loginWarden = asyncHandler(async(req,res)=>{
+const loginWarden = asyncHandler(async (req, res) => {
     const {email, password} = req.body
 
     if(!email || email.trim() === " "){
         throw new ApiError(400, "Email is required");
     }
 
-    if(checkStudentEmail(email)){
+    if(checkIfStudentEmail(email)){
         throw new ApiError(400,"Kindly Login through Student SignUp")
     }
 
@@ -172,7 +172,7 @@ const loginWarden = asyncHandler(async(req,res)=>{
     )
 })
 
-const logOutWarden = asyncHandler(async(req,res)=>{
+const logOutWarden = asyncHandler(async (req, res) => {
     const wardenId = req.user?._id
 
     await Warden.findByIdAndUpdate(
