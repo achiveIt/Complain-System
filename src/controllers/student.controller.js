@@ -157,12 +157,11 @@ const loginStudent = asyncHandler(async(req,res)=>{
         throw new ApiError(401,"Incorrect Password")
     }
 
-    const {accessToken , refreshToken} = await 
-    generateAccessAndRefreshToken(student._id);
+    const {accessToken , refreshToken} = await generateAccessAndRefreshToken(student._id);
 
     const updatedStudent = await Student.findById(student._id).select("-password -refreshToken" ) //doubt
 
-    const options={
+    const options = {
         httpOnly: true,
         secure: true
     }
