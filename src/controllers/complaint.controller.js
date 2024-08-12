@@ -61,8 +61,8 @@ const createComplaint = asyncHandler(async (req, res) => {
 
 const changeComplaintStatus = asyncHandler(async (req, res) => {
     const {userId} = req.user?._id
-    const {complaintId} = req.complaint?._id
-    const {status} = req.params
+    const {complaintId} = req.params
+    const {status} = req.body
 
     if(!isValidObjectId(userId)){
         throw new ApiError(400, "Invalid user id")
@@ -83,8 +83,8 @@ const changeComplaintStatus = asyncHandler(async (req, res) => {
     )
     
     return res
-            .status(200)
-            .json(new ApiResponse(200, "Status updated successfully"))
+    .status(200)
+    .json(new ApiResponse(200, {},"Status updated successfully"))
 })
 
-export {createComplaint}
+export {createComplaint, changeComplaintStatus}
