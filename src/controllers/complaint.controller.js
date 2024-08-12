@@ -58,4 +58,33 @@ const createComplaint = asyncHandler(async (req, res) => {
     )
 })
 
+
+const changeComplaintStatus = asyncHandler(async (req, res) => {
+    const {userId} = req.user?._id
+    const {complaintId} = req.complaint?._id
+    const {status} = req.params
+
+    if(!isValidObjectId(userId)){
+        throw new ApiError(400, "Invalid user id")
+    }
+
+    if(!isValidObjectId(complaintId)){
+        throw new ApiError(400, "Invalid comaplint id")
+    }
+
+    const complaint = await Complaint.findByIdAndUpdate(
+        complaintId,
+        {
+            status: status
+        },
+        {
+            new: true
+        }
+    )
+    
+    return res
+            .status(200)
+            .json(new ApiResponse(200, "Status updated successfully"))
+})
+
 export {createComplaint}
