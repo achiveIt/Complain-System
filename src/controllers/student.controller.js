@@ -46,18 +46,21 @@ const registerStudent =  asyncHandler(async (req, res) => {
     if(!rollNo || rollNo.trim() === ""){
         throw new ApiError(400,"Roll Number cannot be empty!!")
     }
-    if(!email || email.trim() === ""){
-        throw new ApiError(400,"Email cannot be empty!!")
-    }
-    if(!phoneNo || phoneNo.trim() === ""){
-        throw new ApiError(400,"Phone Number cannot be empty!!")
-    }
+
     if(!checkRollNo(rollNo)){
         throw new ApiError(400,"Roll Number is not in correct form")
     }
 
+    if(!email || email.trim() === ""){
+        throw new ApiError(400,"Email cannot be empty!!")
+    }
+
     if(!checkEmail(email)){
         throw new ApiError(400,"Email is not in correct form")
+    }
+
+    if(!phoneNo || phoneNo.trim() === ""){
+        throw new ApiError(400,"Phone Number cannot be empty!!")
     }
 
     if(phoneNo.length != 10){
@@ -67,8 +70,13 @@ const registerStudent =  asyncHandler(async (req, res) => {
     if(!isSameEmailRollNo(email,rollNo)){
         throw new ApiError(400,"Email and Roll Number are not matching")
     }
+
     if(!password || password.trim() === ""){
         throw new ApiError(400,"Password cannot be empty!!")
+    }
+
+    if(password.length < 8){
+        throw new ApiError(400,"Password must be atleast 8 characters long")
     }
 
     const checkStudentPresntOrNot= await Student.findOne({email})
@@ -202,9 +210,43 @@ const logoutStudent = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200,{},"Student Logged Out"))
 })
 
+const changePassword = asyncHandler(async (req, res) => {
+    const {oldPassword, newPassword} = req.body
+    const studentId = req.user?._id
+
+    if(!oldPassword || oldPassword.trim() === ""){
+        throw new ApiError(400, "Old Password is required!! Or try forget password")
+    }
+
+    const student = await Student.findById(studentId)
+
+    const isPasswordValid = student.isPasswordCorrect(oldPassword)
+
+    if(!isPasswordValid){
+        throw new ApiError(400,"Old Password is wrong!!")
+    }
+
+    if(!newPassword || newPassword.trim() === ""){
+        throw new ApiError(400, "New Password is required")
+    }
+
+    if(newPassword.length <8 ){
+        throw new ApiError(400,"Passlong length must be of atleast 8 characters")
+    }
+
+    student.password = newPassword
+    await student.save( {validateBeforeSave: false} )
+
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,{},"Password Updated Successfully!!"))
+})
+
 export {
     registerStudent,
     verifyStudentOtp,
     loginStudent,
-    logoutStudent
+    logoutStudent,
+    changePassword
 }
