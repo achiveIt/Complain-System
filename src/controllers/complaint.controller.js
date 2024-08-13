@@ -87,4 +87,87 @@ const changeComplaintStatus = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {},"Status updated successfully"))
 })
 
-export {createComplaint, changeComplaintStatus}
+
+const addComplaintReminder = asyncHandler(async (req, res) => {
+    const {complaintId} = req.params
+
+    if(!isValidObjectId(complaintId)){
+        throw new ApiError(400, "Invalid Compalint Id")
+    }
+
+    const complaint = await Complaint.findById(complaintId);
+    if(complaint.status === "Resolved"){
+        throw new ApiError(400, "Complaint already being resolved !!")
+    }
+    else if(complaint.type === "Housekeeping" ){
+        if(complaint.reminderDates.length === 0){
+            const compalintTime = complaint.createdAt.getTime()
+            const currentTime = new Date().getTime()
+            if (currentTime - compalintTime >= (60*60*1000)) {
+                complaint.reminder = (complaint.reminder + 1);
+                complaint.reminderDates.push( Date.now())
+                await complaint.save({validateBeforeSave: false})
+                return res
+                .status(200)
+                .json(new ApiResponse(200, {complaint}, "Reminder added successfully"))
+            }else {
+                throw new ApiError(400, "Reminder for the HouseKeeping complaints can be added only after 1 hour from the time of compalint")
+            }
+        }
+        else{
+            const lastComplaintTime = complaint.reminderDates.at(-1).getTime()
+            const currentTime = new Date().getTime()
+
+            if(currentTime - lastComplaintTime >= (60*60*1000)){
+                complaint.reminder = (complaint.reminder + 1);
+                complaint.reminderDates.push( Date.now())
+                await complaint.save({validateBeforeSave: false})
+                return res
+                .status(200)
+                .json(new ApiResponse(200, {complaint}, "Reminder added successfully"))
+            }else{
+                throw new ApiError(400, "Reminder for the HouseKeeping complaints can be added only after 1 hour from the previous reminder")
+            }
+            
+        }
+    }
+    else{
+        if(complaint.reminderDates.length === 0){
+            const compalintTime = complaint.createdAt.getTime()
+            const currentTime = new Date().getTime()
+            if (currentTime - compalintTime >= (24*60*60*1000)) {
+                complaint.reminder = (complaint.reminder + 1);
+                complaint.reminderDates.push( Date.now())
+                await complaint.save({validateBeforeSave: false})
+                return res
+                .status(200)
+                .json(new ApiResponse(200, {complaint}, "Reminder added successfully"))
+            } else {
+                throw new ApiError(400, "Reminder for the complaint can be added only after 24 hours from the time of compalint")
+            }
+        }
+        else{
+            const lastComplaintTime = complaint.reminderDates.at(-1).getTime()
+            const currentTime = new Date().getTime()
+
+            if(currentTime - lastComplaintTime >= (24*60*60*1000)){
+                complaint.reminder = (complaint.reminder + 1);
+                complaint.reminderDates.push( Date.now())
+                await complaint.save({validateBeforeSave: false})
+                return res
+                .status(200)
+                .json(new ApiResponse(200, {complaint}, "Reminder added successfully"))
+            }else{
+                throw new ApiError(400, "Reminder for the HouseKeeping complaint can be added only after 24 hours from the previous reminder")
+            }
+            
+        }
+    }
+    
+})
+
+export {
+    createComplaint, 
+    changeComplaintStatus,
+    addComplaintReminder
+}

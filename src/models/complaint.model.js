@@ -44,11 +44,10 @@ const complaintSchema = new Schema(
             default: 0,
             required: true
         },
-        reminderDates: [
-            {
-                type: Date
-            }
-        ],
+        reminderDates: {
+            type: [Date],
+            default: []
+        },
         preferedDateandTime:{
             type: Date,
             required: true
