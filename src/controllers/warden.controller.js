@@ -53,6 +53,10 @@ const registerWarden = asyncHandler(async (req, res) => {
         throw new ApiError(400,"Password field cannot be empty")
     }
 
+    if(password.length < 8){
+        throw new ApiError(400,"Passlong length must be of atleast 8 characters")
+    }
+
     const checkUser = await Warden.findOne({email});
 
     if(checkUser){
@@ -199,9 +203,43 @@ const logOutWarden = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200,{},"User Logged Out"))
 })
 
+const changePassword = asyncHandler(async (req, res) => {
+    const {oldPassword, newPassword} = req.body
+    const wardenId = req.user?._id
+
+    if(!oldPassword || oldPassword.trim() === ""){
+        throw new ApiError(400, "Old Password is required!! Or try forget password")
+    }
+
+    const warden = await Warden.findById(wardenId)
+
+    const isPasswordValid = warden.isPasswordCorrect(oldPassword)
+
+    if(!isPasswordValid){
+        throw new ApiError(400,"Old Password is wrong!!")
+    }
+
+    if(!newPassword || newPassword.trim() === ""){
+        throw new ApiError(400, "New Password is required")
+    }
+
+    if(newPassword.length <8 ){
+        throw new ApiError(400,"Passlong length must be of atleast 8 characters")
+    }
+
+    warden.password = newPassword
+    await warden.save( {validateBeforeSave: false} )
+
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,{},"Password Updated Successfully!!"))
+})
+
 export{
     registerWarden,
     verifyWardenOtp,
     loginWarden,
-    logOutWarden
+    logOutWarden,
+    changePassword
 }
