@@ -12,6 +12,11 @@ const checkEmail = (email) => {
     let regex = /^[a-zA-Z][a-zA-Z][a-zA-Z0-9._%+-]*@lnmiit\.ac\.in$/
     return regex.test(email);
 }
+const isDigitsOnly = (phoneNo) => {
+    let regex =  /^\d+$/  // Regular expression to check if the string contains only digits
+    return regex.test(phoneNo)
+}
+
 const generateAccessAndRefreshToken = async (wardenId) => {
     try {
         const warden = await Warden.findById(wardenId)
@@ -39,6 +44,10 @@ const registerWarden = asyncHandler(async (req, res) => {
 
     if(phoneNo.length != 10){
         throw new ApiError(400, "Phone Number must be 10 digits long")
+    }
+
+    if(!isDigitsOnly(phoneNo)){
+        throw new ApiError(400,"Phone Number should contain digits only!!")
     }
 
     if(checkIfStudentEmail(email)){
@@ -236,10 +245,41 @@ const changePassword = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200,{},"Password Updated Successfully!!"))
 })
 
+const updatePhoneNo = asyncHandler(async (req, res) => {
+    const {phoneNo} = req.body;
+    const wardenId = req.user?._id;
+
+    if(!phoneNo || phoneNo.trim() === ""){
+        throw new ApiError(400, "Kindly enter phone number")
+    }
+
+    if(!isDigitsOnly(phoneNo)){
+        throw new ApiError(400,"Phone Number should contain digits only!!")
+    }
+
+    if(phoneNo.length != 10){
+        throw new ApiError(400,"Phone Number should contain 10 digits only!!")
+    }
+
+    const warden = await Warden.findById(wardenId)
+
+    if(!warden){
+        throw new ApiError(500, "Error while fetching User info")
+    }
+
+    warden.phoneNo = phoneNo
+    await warden.save( {validateBeforeSave: false} )
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,{},"Phone Number Updated Successfully"))
+})
+
 export{
     registerWarden,
     verifyWardenOtp,
     loginWarden,
     logOutWarden,
-    changePassword
+    changePassword,
+    updatePhoneNo
 }
