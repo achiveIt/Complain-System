@@ -12,13 +12,17 @@ const checkEmail = (email) => {
     let regex= /^\d{2}[a-z]{3}\d{3}@lnmiit\.ac\.in$/;
     return regex.test(email);
 }
-const isSameEmailRollNo = (email,rollNo)=>{
+const isSameEmailRollNo = (email,rollNo) => {
     let ind=0;
     for (let index = 0; index < rollNo.length; index++) {
         if(rollNo[index]!=email[ind]) return false;
         ind++;
     }
     return true;
+}
+const isDigitsOnly = (phoneNo) => {
+    let regex =  /^\d+$/  // Regular expression to check if the string contains only digits
+    return regex.test(phoneNo)
 }
 
 const generateAccessAndRefreshToken = async (studentId) => {
@@ -38,11 +42,12 @@ const generateAccessAndRefreshToken = async (studentId) => {
 }
 
 const registerStudent =  asyncHandler(async (req, res) => {
-    const {name,rollNo,email,phoneNo,password} = req.body;
+    const {name, rollNo, email, phoneNo, password} = req.body
 
     if(!name || name.trim() === ""){
         throw new ApiError(400,"Name cannot be empty!!")
     }
+
     if(!rollNo || rollNo.trim() === ""){
         throw new ApiError(400,"Roll Number cannot be empty!!")
     }
@@ -59,16 +64,20 @@ const registerStudent =  asyncHandler(async (req, res) => {
         throw new ApiError(400,"Email is not in correct form")
     }
 
+    if(!isSameEmailRollNo(email,rollNo)){
+        throw new ApiError(400,"Email and Roll Number are not matching")
+    }
+
     if(!phoneNo || phoneNo.trim() === ""){
         throw new ApiError(400,"Phone Number cannot be empty!!")
     }
 
-    if(phoneNo.length != 10){
-        throw new ApiError(400,"Phone Number must be of 10 digits")
+    if(!isDigitsOnly(phoneNo)){
+        throw new ApiError(400,"Phone Number should contain digits only!!")
     }
 
-    if(!isSameEmailRollNo(email,rollNo)){
-        throw new ApiError(400,"Email and Roll Number are not matching")
+    if(phoneNo.length != 10){
+        throw new ApiError(400,"Phone Number must be of 10 digits")
     }
 
     if(!password || password.trim() === ""){
@@ -98,15 +107,15 @@ const registerStudent =  asyncHandler(async (req, res) => {
     //Nodemailer OTP verification 
     await sendOtpVerificationMail(email);
 
-    return res.status(200).json(
-        new ApiResponse(200,{},"Email Verification Mail Sent!!")
-    )
+    return res
+    .status(200)
+    .json(new ApiResponse(200,{},"Email Verification Mail Sent!!"))
 })
 
 const verifyStudentOtp = asyncHandler(async (req, res) => {
-    const {email,otp} = req.body;
+    const {email, otp} = req.body;
     
-    const response = await verifyOtp(email,otp);
+    const response = await verifyOtp(email, otp);
     
     if(response){
         try {
@@ -124,18 +133,20 @@ const verifyStudentOtp = asyncHandler(async (req, res) => {
                 new ApiResponse(200,newStudent,"Student registered Successfully!!")
             )
         } catch (error) {
-            return res.status(500).json( 
-                new ApiResponse(500,{},"Error while Email Verification")
-            )    
+            return res
+            .status(500)
+            .json(new ApiResponse(500,{},"Error while Email Verification"))    
         }
     }
     else{
-        return res.status(200,{},"Wrong OTP")
+        return res
+        .status(200)
+        .json(new ApiResponse(200,{},"Wrong OTP"))
     }
 })
 
 const loginStudent = asyncHandler(async (req, res) => {
-    const {email,password} = req.body
+    const {email, password} = req.body
 
     if(!email){
         throw new ApiError(400,"Email Field is Required")
@@ -178,9 +189,7 @@ const loginStudent = asyncHandler(async (req, res) => {
     .status(200)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
-    .json(
-        new ApiResponse(200,{updatedStudent},"Logged in successfully!!")
-    )
+    .json(new ApiResponse(200,{updatedStudent},"Logged in successfully!!"))
 })
 
 const logoutStudent = asyncHandler(async (req, res) => {
@@ -220,6 +229,10 @@ const changePassword = asyncHandler(async (req, res) => {
 
     const student = await Student.findById(studentId)
 
+    if(!student){
+        throw new ApiError(500, "Error while fetching Student info")
+    }
+
     const isPasswordValid = student.isPasswordCorrect(oldPassword)
 
     if(!isPasswordValid){
@@ -243,10 +256,41 @@ const changePassword = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200,{},"Password Updated Successfully!!"))
 })
 
+const updatePhoneNo = asyncHandler(async (req, res) => {
+    const {phoneNo} = req.body;
+    const studentId = req.user?._id;
+
+    if(!phoneNo || phoneNo.trim() === ""){
+        throw new ApiError(400, "Kindly enter phone number")
+    }
+
+    if(!isDigitsOnly(phoneNo)){
+        throw new ApiError(400,"Phone Number should contain digits only!!")
+    }
+
+    if(phoneNo.length != 10){
+        throw new ApiError(400,"Phone Number should contain 10 digits only!!")
+    }
+
+    const student = await Student.findById(studentId)
+
+    if(!student){
+        throw new ApiError(500, "Error while fetching Student info")
+    }
+
+    student.phoneNo = phoneNo
+    await student.save( {validateBeforeSave: false} )
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,{},"Phone Number Updated Successfully"))
+})
+
 export {
     registerStudent,
     verifyStudentOtp,
     loginStudent,
     logoutStudent,
-    changePassword
+    changePassword,
+    updatePhoneNo
 }
