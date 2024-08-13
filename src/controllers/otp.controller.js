@@ -3,7 +3,7 @@ import mailSender from '../utils/MailSender.js';
 import bcrypt from 'bcrypt'
 import ApiError from '../utils/ApiError.js'
 
-const sendOtpVerificationMail = async(email)=>{
+const sendOtpVerificationMail = async(email) => {
 
     const otpGenerated = `${Math.floor(1000 + Math.random()*9000)}`;
 
@@ -33,7 +33,7 @@ const sendOtpVerificationMail = async(email)=>{
     }
 }
 
-const verifyOtp = async(email,otp)=>{
+const verifyOtp = async(email, otp) => {
     const checkOtp = await Otp.findOne({
         email
     })
@@ -69,5 +69,5 @@ const verifyOtp = async(email,otp)=>{
 
 export {
     sendOtpVerificationMail,
-    verifyOtp
+    verifyOtp,
 }
