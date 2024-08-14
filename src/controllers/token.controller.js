@@ -57,9 +57,11 @@ const resetPassword = async(token) => {
         throw new ApiError(400, "Invalid or expired password reset token")
     }
 
+    const email = passwordResetToken.email
+
     await passwordResetToken.deleteOne()
 
-    return true
+    return email
 }
 
 export {

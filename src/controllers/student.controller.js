@@ -3,6 +3,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js"
 import { sendOtpVerificationMail, verifyOtp } from "./otp.controller.js";
 import ApiResponse from "../utils/ApiResponse.js";
+import { requestPasswordReset, resetPassword } from "./token.controller.js";
 
 const checkRollNo =  (rollNo) => {
     let regex = /^\d{2}[a-z]{3}\d{3}$/;
@@ -286,11 +287,68 @@ const updatePhoneNo = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200,{},"Phone Number Updated Successfully"))
 })
 
+const passwordResetRequest = asyncHandler(async (req, res) => {
+    const {email} = req.body
+
+    const link = await requestPasswordReset(email)
+
+    if(!link){
+        throw new ApiError(500, "Error while generating link")
+    }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,link,"Password Reset Link Successfully Send"))
+})
+
+const passwordReset = asyncHandler(async (req, res) => {
+    const {token} = req.query.token
+    const {password, confirmPassword} = req.body
+
+    if(!password || password.trim() === ""){
+        throw new ApiError(400, "Password is empty")
+    }
+
+    if(!confirmPassword || confirmPassword.trim() === ""){
+        throw new ApiError(400, "Confirm Password is empty")
+    }
+
+    if(password != confirmPassword){
+        throw new ApiError(400, "Password and confirm password are not matching")
+    }
+
+    const getEmail = await resetPassword(token)
+
+    if(getEmail){
+        const student = await Student.findOne({getEmail})
+
+        if(!student){
+            throw new ApiError(500, "Error while fetching student details")
+        }
+
+        try {
+            student.password = confirmPassword
+            await student.save( {validateBeforeSave: false} )
+    
+            return res
+            .status(200)
+            .json(new ApiResponse(200,{},"Password Updated Successfully"))
+        } catch (error) {
+            throw new ApiError(500, error.message)
+        }
+    }
+    else{
+        throw new ApiError(500, "Password reset failed")
+    }
+})
+
 export {
     registerStudent,
     verifyStudentOtp,
     loginStudent,
     logoutStudent,
     changePassword,
-    updatePhoneNo
+    updatePhoneNo,
+    passwordResetRequest,
+    passwordReset
 }
