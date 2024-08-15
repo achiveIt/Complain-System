@@ -1,10 +1,11 @@
 import { token } from "../models/token.model.js";
 import ApiError from "../utils/ApiError.js";
+import bcrypt from "bcrypt"
 
 const requestPasswordReset = async(email) => {
     
     //delete any previous token if they exist
-    await anyPrevToken.deleteMany({email}); 
+    await token.deleteMany({email}); 
 
     const newToken = crypto.randomBytes(32).toString("hex")
 
