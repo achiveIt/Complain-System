@@ -279,6 +279,61 @@ const updatePhoneNo = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200,{},"Phone Number Updated Successfully"))
 })
 
+const passwordResetRequest = asyncHandler(async (req, res) => {
+    const {email} = req.body
+
+    const link = await requestPasswordReset(email)
+
+    if(!link){
+        throw new ApiError(500, "Error while generating link")
+    }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,link,"Password Reset Link Successfully Send"))
+})
+
+const passwordReset = asyncHandler(async (req, res) => {
+    const {token} = req.query.token
+    const {password, confirmPassword} = req.body
+
+    if(!password || password.trim() === ""){
+        throw new ApiError(400, "Password is empty")
+    }
+
+    if(!confirmPassword || confirmPassword.trim() === ""){
+        throw new ApiError(400, "Confirm Password is empty")
+    }
+
+    if(password != confirmPassword){
+        throw new ApiError(400, "Password and confirm password are not matching")
+    }
+
+    const getEmail = await resetPassword(token)
+
+    if(getEmail){
+        const warden = await Warden.findOne({getEmail})
+
+        if(!warden){
+            throw new ApiError(500, "Error while fetching warden details")
+        }
+
+        try {
+            warden.password = confirmPassword
+            await warden.save( {validateBeforeSave: false} )
+    
+            return res
+            .status(200)
+            .json(new ApiResponse(200,{},"Password Updated Successfully"))
+        } catch (error) {
+            throw new ApiError(500, error.message)
+        }
+    }
+    else{
+        throw new ApiError(500, "Password reset failed")
+    }
+})
+
 export{
     registerWarden,
     verifyWardenOtp,
@@ -286,5 +341,7 @@ export{
     loginWarden,
     logOutWarden,
     changePassword,
-    updatePhoneNo
+    updatePhoneNo,
+    passwordResetRequest,
+    passwordReset
 }
