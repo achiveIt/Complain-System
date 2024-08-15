@@ -1,6 +1,7 @@
 import { token } from "../models/token.model.js";
 import ApiError from "../utils/ApiError.js";
 import bcrypt from "bcrypt"
+import mailSender from "../utils/MailSender.js";
 
 const requestPasswordReset = async(email) => {
     
