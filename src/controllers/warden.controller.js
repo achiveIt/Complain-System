@@ -3,19 +3,7 @@ import ApiError from '../utils/ApiError.js';
 import ApiResponse from '../utils/ApiResponse.js';
 import asyncHandler from '../utils/asyncHandler.js'
 import { sendOtpVerificationMail, verifyOtp } from './otp.controller.js';
-
-const checkIfStudentEmail = (email) => {
-    let regex= /^\d{2}[a-z]{3}\d{3}@lnmiit\.ac\.in$/;
-    return regex.test(email);
-}
-const checkEmail = (email) => {
-    let regex = /^[a-zA-Z][a-zA-Z][a-zA-Z0-9._%+-]*@lnmiit\.ac\.in$/
-    return regex.test(email);
-}
-const isDigitsOnly = (phoneNo) => {
-    let regex =  /^\d+$/  // Regular expression to check if the string contains only digits
-    return regex.test(phoneNo)
-}
+import {checkPassword, checkEmail, isDigitsOnly, checkIfStudentEmail} from "../utils/checkFunctions.js"
 
 const generateAccessAndRefreshToken = async (wardenId) => {
     try {
@@ -62,10 +50,8 @@ const registerWarden = asyncHandler(async (req, res) => {
         throw new ApiError(400,"Password field cannot be empty")
     }
 
-    if(password.length < 8){
-        throw new ApiError(400,"Passlong length must be of atleast 8 characters")
-    }
-
+    checkPassword(password);
+    
     const checkUser = await Warden.findOne({email});
 
     if(checkUser){

@@ -46,6 +46,10 @@ const verifyOtp = async(email, otp) => {
     const expiryTime = checkOtp.expiresAt;
 
     if(expiryTime<currentTime){
+        await Otp.deleteMany({
+            email
+        })
+        
         throw new ApiError(400,"Otp is expired!! Regenerate the Verification Mail")
     }
     console.log("Comparing");

@@ -4,27 +4,7 @@ import ApiError from "../utils/ApiError.js"
 import { sendOtpVerificationMail, verifyOtp } from "./otp.controller.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import { requestPasswordReset, resetPassword } from "./token.controller.js";
-
-const checkRollNo =  (rollNo) => {
-    let regex = /^\d{2}[a-z]{3}\d{3}$/;
-    return regex.test(rollNo);
-}
-const checkEmail = (email) => {
-    let regex= /^\d{2}[a-z]{3}\d{3}@lnmiit\.ac\.in$/;
-    return regex.test(email);
-}
-const isSameEmailRollNo = (email,rollNo) => {
-    let ind=0;
-    for (let index = 0; index < rollNo.length; index++) {
-        if(rollNo[index]!=email[ind]) return false;
-        ind++;
-    }
-    return true;
-}
-const isDigitsOnly = (phoneNo) => {
-    let regex =  /^\d+$/  // Regular expression to check if the string contains only digits
-    return regex.test(phoneNo)
-}
+import {checkPassword, checkRollNo, checkEmail, isSameEmailRollNo, isDigitsOnly} from "../utils/checkFunctions.js"
 
 const generateAccessAndRefreshToken = async (studentId) => {
     try {
@@ -62,7 +42,7 @@ const registerStudent =  asyncHandler(async (req, res) => {
     }
 
     if(!checkEmail(email)){
-        throw new ApiError(400,"Email is not in correct form")
+        throw new ApiError(400,"Kindly enter college email")
     }
 
     if(!isSameEmailRollNo(email,rollNo)){
@@ -85,9 +65,7 @@ const registerStudent =  asyncHandler(async (req, res) => {
         throw new ApiError(400,"Password cannot be empty!!")
     }
 
-    if(password.length < 8){
-        throw new ApiError(400,"Password must be atleast 8 characters long")
-    }
+    checkPassword(password)
 
     const checkStudentPresntOrNot= await Student.findOne({email})
 
