@@ -124,6 +124,24 @@ const verifyStudentOtp = asyncHandler(async (req, res) => {
     }
 })
 
+const regenerateOtp = asyncHandler(async (req, res) => {
+    const {email} = req.body 
+    
+    if(!email || email.trim() === ""){
+        throw new ApiError(400, "Email field cannot be empty")
+    }
+
+    if(!checkEmail(email)){
+        throw new ApiError (400, "Enter college email Id")
+    }
+
+    await sendOtpVerificationMail(email)
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,{},"Email Verification Mail Sent!!"))
+})
+
 const loginStudent = asyncHandler(async (req, res) => {
     const {email, password} = req.body
 
@@ -323,6 +341,7 @@ const passwordReset = asyncHandler(async (req, res) => {
 export {
     registerStudent,
     verifyStudentOtp,
+    regenerateOtp,
     loginStudent,
     logoutStudent,
     changePassword,
