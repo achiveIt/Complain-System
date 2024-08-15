@@ -3,11 +3,8 @@ import ApiError from "../utils/ApiError.js";
 
 const requestPasswordReset = async(email) => {
     
-    const anyPrevToken = await token.findOne({email})
-
-    if(anyPrevToken){ //delete any previous token if they exist
-        await anyPrevToken.deleteOne(); 
-    }
+    //delete any previous token if they exist
+    await anyPrevToken.deleteMany({email}); 
 
     const newToken = crypto.randomBytes(32).toString("hex")
 
