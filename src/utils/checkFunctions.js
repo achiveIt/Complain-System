@@ -10,7 +10,7 @@ const checkPassword = (password) => {
     let specialCharacter = false;
 
     for (let index = 0; index < password.length; index++) {
-        const element = array[index];
+        const element = password[index];
 
         if(element >= 'a' && element <= 'z'){
             smallCharacter = true;
