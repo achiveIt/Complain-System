@@ -4,6 +4,7 @@ import ApiResponse from '../utils/ApiResponse.js';
 import asyncHandler from '../utils/asyncHandler.js'
 import { sendOtpVerificationMail, verifyOtp } from './otp.controller.js';
 import {checkPassword, checkEmail, isDigitsOnly, checkIfStudentEmail} from "../utils/checkFunctions.js"
+import { requestPasswordReset, verifyResetPasswordToken } from './token.controller.js';
 
 const generateAccessAndRefreshToken = async (wardenId) => {
     try {
@@ -309,7 +310,7 @@ const passwordReset = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Password and confirm password are not matching")
     }
 
-    const getEmail = await resetPassword(token)
+    const getEmail = await verifyResetPasswordToken(token)
 
     if(getEmail){
         const warden = await Warden.findOne({getEmail})
