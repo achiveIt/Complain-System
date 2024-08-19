@@ -3,7 +3,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js"
 import { sendOtpVerificationMail, verifyOtp } from "./otp.controller.js";
 import ApiResponse from "../utils/ApiResponse.js";
-import { requestPasswordReset, resetPassword } from "./token.controller.js";
+import { requestPasswordReset,  verifyResetPasswordToken } from "./token.controller.js";
 import {checkPassword, checkRollNo, checkEmail, isSameEmailRollNo, isDigitsOnly} from "../utils/checkFunctions.js"
 
 const generateAccessAndRefreshToken = async (studentId) => {
@@ -230,7 +230,7 @@ const changePassword = asyncHandler(async (req, res) => {
         throw new ApiError(500, "Error while fetching Student info")
     }
 
-    const isPasswordValid = student.isPasswordCorrect(oldPassword)
+    const isPasswordValid = await student.isPasswordCorrect(oldPassword)
 
     if(!isPasswordValid){
         throw new ApiError(400,"Old Password is wrong!!")
@@ -243,6 +243,8 @@ const changePassword = asyncHandler(async (req, res) => {
     if(newPassword.length <8 ){
         throw new ApiError(400,"Passlong length must be of atleast 8 characters")
     }
+
+    checkPassword(newPassword)
 
     student.password = newPassword
     await student.save( {validateBeforeSave: false} )
@@ -313,7 +315,7 @@ const passwordReset = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Password and confirm password are not matching")
     }
 
-    const getEmail = await resetPassword(token)
+    const getEmail = await verifyResetPasswordToken(token)
 
     if(getEmail){
         const student = await Student.findOne({getEmail})
