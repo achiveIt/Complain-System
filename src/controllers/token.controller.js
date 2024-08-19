@@ -1,35 +1,36 @@
-import { token } from "../models/token.model.js";
+import { Token } from "../models/token.model.js";
 import ApiError from "../utils/ApiError.js";
 import bcrypt from "bcrypt"
 import mailSender from "../utils/MailSender.js";
+import crypto from "crypto";
 
 const requestPasswordReset = async(email) => {
     
-    //delete any previous token if they exist
-    await token.deleteMany({email}); 
+    //delete any previous Token if they exist
+    await Token.deleteMany({email}); 
 
     const newToken = crypto.randomBytes(32).toString("hex")
 
     const hashedToken = await bcrypt.hash(newToken, 8)
 
-    const saveToken = await token.create({
+    const saveToken = await Token.create({
         email,
         tokenGenerated: hashedToken,
         expiresAt: Date.now() + (5 * 60 * 1000)
     })
 
     if(!saveToken){
-        throw new ApiError(500, "Error while creating token")
+        throw new ApiError(500, "Error while creating Token")
     }
 
-    const link = `${process.env.CLIENT_URL}/passwordReset?token=${newToken}&id=${user._id}`
+    const link = `${process.env.CLIENT_URL}/passwordReset?Token=${newToken}`
 
     try {
         const title = "Password Reset Request";
         const body = `<p>Hii,</p>
                     <p>You requested to reset your password.</p>
                     <p> Please, click the link below to reset your password</p>
-                    <a href="${link}">Reset Password</a>`
+                    <a href="https://{{link}}">Reset Password</a>`
 
         const mailResponse = mailSender(email,title,body);
          
@@ -43,17 +44,17 @@ const requestPasswordReset = async(email) => {
     }
 }
 
-const resetPassword = async(token) => {
-    const passwordResetToken = await token.findOne({token});
+const verifyResetPasswordToken = async(token) => {
+    const passwordResetToken = await Token.findOne({token});
 
     if(!passwordResetToken){
-        throw new ApiError(400, "Invalid or expired password reset token");
+        throw new ApiError(400, "Invalid or expired password reset Token");
     }
 
     const isValidToken = await bcrypt.compare(token, passwordResetToken.tokenGenerated)
 
     if(!isValidToken){
-        throw new ApiError(400, "Invalid or expired password reset token")
+        throw new ApiError(400, "Invalid or expired password reset Token")
     }
 
     const email = passwordResetToken.email
@@ -65,5 +66,5 @@ const resetPassword = async(token) => {
 
 export {
     requestPasswordReset,
-    resetPassword
+    verifyResetPasswordToken
 }
