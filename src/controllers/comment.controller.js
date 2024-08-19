@@ -3,7 +3,7 @@ import { Complaint } from "../models/complaint.model.js";
 import { Comment } from "../models/comment.model.js"
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
-import mongoose, { isValidObjectId } from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose"
 
 const addComment = asyncHandler(async (req, res) => {
     const {complaintId} = req.params
