@@ -51,7 +51,9 @@ const verifyResetPasswordToken = async(token) => {
         throw new ApiError(400, "Invalid or expired password reset Token");
     }
 
-    const isValidToken = await bcrypt.compare(token, passwordResetToken.tokenGenerated)
+    const hashedToken = passwordResetToken.tokenGenerated
+    
+    const isValidToken = await bcrypt.compare(token, hashedToken)
 
     if(!isValidToken){
         throw new ApiError(400, "Invalid or expired password reset Token")
