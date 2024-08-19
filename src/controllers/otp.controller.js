@@ -5,6 +5,12 @@ import ApiError from '../utils/ApiError.js'
 
 const sendOtpVerificationMail = async(email) => {
 
+    const checkIfOtpExists = await Otp.findOne({email});
+
+    if(checkIfOtpExists && (Date.now() - checkIfOtpExists.createdAt.getTime()) < 5 * 60 * 1000){
+        throw new ApiError(400, "Otp can be requested only after 5 mins")
+    }
+    
     const otpGenerated = `${Math.floor(1000 + Math.random()*9000)}`;
 
     const hashedOtp =  await bcrypt.hash(otpGenerated, 8);
