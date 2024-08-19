@@ -244,6 +244,8 @@ const changePassword = asyncHandler(async (req, res) => {
         throw new ApiError(400,"Passlong length must be of atleast 8 characters")
     }
 
+    checkPassword(newPassword)
+
     student.password = newPassword
     await student.save( {validateBeforeSave: false} )
 
