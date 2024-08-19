@@ -246,6 +246,10 @@ const changePassword = asyncHandler(async (req, res) => {
 
     checkPassword(newPassword)
 
+    if(oldPassword == newPassword){
+        throw new ApiError(400, "Old and New password are both same")
+    }
+
     student.password = newPassword
     await student.save( {validateBeforeSave: false} )
 
@@ -315,6 +319,8 @@ const passwordReset = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Password and confirm password are not matching")
     }
 
+    changePassword(confirmPassword);
+    
     const getEmail = await verifyResetPasswordToken(token)
 
     if(getEmail){
