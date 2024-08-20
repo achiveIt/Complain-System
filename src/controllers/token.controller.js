@@ -16,7 +16,8 @@ const requestPasswordReset = async(email) => {
     const saveToken = await Token.create({
         email,
         tokenGenerated: hashedToken,
-        expiresAt: Date.now() + (5 * 60 * 1000)
+        expiresAt: Date.now() + (5 * 60 * 1000),
+        createdAt: Date.now()
     })
 
     if(!saveToken){
@@ -44,26 +45,28 @@ const requestPasswordReset = async(email) => {
     }
 }
 
-const verifyResetPasswordToken = async(token) => {
-    const passwordResetToken = await Token.findOne({token});
-
-    if(!passwordResetToken){
-        throw new ApiError(400, "Invalid or expired password reset Token");
-    }
-
-    const hashedToken = passwordResetToken.tokenGenerated
+const verifyResetPasswordToken = async(token, email) => {
+    try {
+        const passwordResetToken = await Token.findOne({email})
+        
+        if(!passwordResetToken){
+            throw new ApiError(400, "Invalid or expired password reset Token");
+        }
     
-    const isValidToken = await bcrypt.compare(token, hashedToken)
+        const hashedToken = passwordResetToken.tokenGenerated
 
-    if(!isValidToken){
-        throw new ApiError(400, "Invalid or expired password reset Token")
+        const isValidToken = await bcrypt.compare(token, hashedToken)
+    
+        if(!isValidToken){
+            throw new ApiError(400, "Invalid or expired password reset Token")
+        }
+
+        await passwordResetToken.deleteOne()
+    
+        return true
+    } catch (error) {
+        throw new ApiError(500,error.message)
     }
-
-    const email = passwordResetToken.email
-
-    await passwordResetToken.deleteOne()
-
-    return email
 }
 
 export {

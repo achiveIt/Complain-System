@@ -9,11 +9,14 @@ const tokenSchema = new Schema({
         type: String,
         required: true,
     },
-    createdAt: {
+    expiresAt: {
         type: Date,
-        default: Date.now(),
-        expires: 5 * 60  //seconds
-    }    
+        required: true,
+        default: () => Date.now() + 5 * 60000
+    },
+    createdAt: {
+        type: Date
+    }     
 })
 
 export const Token = mongoose.model("Token", tokenSchema)
