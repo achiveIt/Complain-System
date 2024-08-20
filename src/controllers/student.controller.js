@@ -304,7 +304,15 @@ const passwordResetRequest = asyncHandler(async (req, res) => {
 })
 
 const passwordReset = asyncHandler(async (req, res) => {
-    const {token} = req.query.token
+    const {token} = req.query
+    const studentId = req.user?._id
+    
+    const student = await Student.findById(studentId)
+
+    if(!student){
+        throw new ApiError(404,"Student not Found")
+    }
+
     const {password, confirmPassword} = req.body
 
     if(!password || password.trim() === ""){
@@ -319,19 +327,13 @@ const passwordReset = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Password and confirm password are not matching")
     }
 
-    changePassword(confirmPassword);
+    checkPassword(confirmPassword);
     
-    const getEmail = await verifyResetPasswordToken(token)
+    const response = await verifyResetPasswordToken(token,student.email)
 
-    if(getEmail){
-        const student = await Student.findOne({getEmail})
-
-        if(!student){
-            throw new ApiError(500, "Error while fetching student details")
-        }
-
+    if(response){
         try {
-            student.password = confirmPassword
+            student.password = password
             await student.save( {validateBeforeSave: false} )
     
             return res
