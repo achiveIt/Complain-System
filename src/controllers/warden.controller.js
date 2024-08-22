@@ -44,7 +44,7 @@ const registerWarden = asyncHandler(async (req, res) => {
     }
 
     if(!checkEmail(email)){
-        throw new ApiError(400, "Email provided is not valid")
+        throw new ApiError(400, "Kindly provide college email")
     }
 
     if(!password || password.trim() === ""){
@@ -85,7 +85,7 @@ const verifyWardenOtp = asyncHandler(async (req, res) => {
     }
 
     if(!checkEmail(email)){
-        throw new ApiError(400, "Email is not in correct form")
+        throw new ApiError(400, "Kindly provide college email")
     }
 
     if(!otp || otp.trim() === ""){
@@ -237,13 +237,10 @@ const changePassword = asyncHandler(async (req, res) => {
         throw new ApiError(400, "New Password is required")
     }
 
-    if(newPassword.length <8 ){
-        throw new ApiError(400,"Passlong length must be of atleast 8 characters")
-    }
+    checkPassword(newPassword)
 
     warden.password = newPassword
     await warden.save( {validateBeforeSave: false} )
-
 
     return res
     .status(200)
@@ -295,7 +292,15 @@ const passwordResetRequest = asyncHandler(async (req, res) => {
 })
 
 const passwordReset = asyncHandler(async (req, res) => {
-    const {token} = req.query.token
+    const {token} = req.query
+    const wardenId = req.user?._id
+    
+    const warden = await Warden.findById(wardenId)
+
+    if(!warden){
+        throw new ApiError(404,"User not Found")
+    }
+
     const {password, confirmPassword} = req.body
 
     if(!password || password.trim() === ""){
@@ -310,17 +315,13 @@ const passwordReset = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Password and confirm password are not matching")
     }
 
-    const getEmail = await verifyResetPasswordToken(token)
+    checkPassword(confirmPassword);
+    
+    const response = await verifyResetPasswordToken(token,warden.email)
 
-    if(getEmail){
-        const warden = await Warden.findOne({getEmail})
-
-        if(!warden){
-            throw new ApiError(500, "Error while fetching warden details")
-        }
-
+    if(response){
         try {
-            warden.password = confirmPassword
+            warden.password = password
             await warden.save( {validateBeforeSave: false} )
     
             return res
