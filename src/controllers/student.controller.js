@@ -4,7 +4,7 @@ import ApiError from "../utils/ApiError.js"
 import { sendOtpVerificationMail, verifyOtp } from "./otp.controller.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import { requestPasswordReset,  verifyResetPasswordToken } from "./token.controller.js";
-import {checkPassword, checkRollNo, checkEmail, isSameEmailRollNo, isDigitsOnly} from "../utils/checkFunctions.js"
+import {checkPassword, checkRollNo, checkEmail, isSameEmailRollNo, isDigitsOnly, checkIfStudentEmail} from "../utils/checkFunctions.js"
 
 const generateAccessAndRefreshToken = async (studentId) => {
     try {
@@ -41,7 +41,7 @@ const registerStudent =  asyncHandler(async (req, res) => {
         throw new ApiError(400,"Email cannot be empty!!")
     }
 
-    if(!checkEmail(email)){
+    if(!checkIfStudentEmail(email)){
         throw new ApiError(400,"Kindly enter college email")
     }
 
