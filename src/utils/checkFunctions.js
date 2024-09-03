@@ -43,7 +43,7 @@ const checkPassword = (password) => {
 }
 
 const checkRollNo =  (rollNo) => {
-    let regex = /^\d{2}[a-z]{3}\d{3}$/;
+    let regex = /\^(1[89]|[2-9]\d)(ucs|ucc|uec|ume|dec|dcs|pmt|pph|pme|pcs)(0[0-9]{2}|[1-9][0-9]{2})$/;
     return regex.test(rollNo);
 }
 
@@ -67,7 +67,7 @@ const isDigitsOnly = (phoneNo) => {
 }
 
 const checkIfStudentEmail = (email) => {
-    let regex= /^\d{2}[a-z]{3}\d{3}@lnmiit\.ac\.in$/;
+    let regex= /^(1[89]|[2-9]\d)(ucs|ucc|uec|ume|dec|dcs|pmt|pph|pme|pcs|pec)(0[0-9]{2}|[1-9][0-9]{2}@lnmiit\.ac\.in$)/;
     return regex.test(email);
 }
 
