@@ -43,8 +43,22 @@ const checkPassword = (password) => {
 }
 
 const checkRollNo =  (rollNo) => {
-    let regex = /\^(1[89]|[2-9]\d)(ucs|ucc|uec|ume|dec|dcs|pmt|pph|pme|pcs)(0[0-9]{2}|[1-9][0-9]{2})$/;
-    return regex.test(rollNo);
+    // let regex = /\^(1[89] | [0-9]{2})(ucs|ucc|uec|ume|dec|dcs|pmt|pph|pme|pcs)(0[0-9]{2}|[0-9][0-9]{2})$/;
+    let regex = /^\d{2}(ucs|ucc|uec|ume|dec|dcs|pmt|pph|pme|pcs)\d{3}$/;
+
+    if(! regex.test(rollNo)){
+        return false;
+    }
+
+    let cnt = 0;
+
+    for (let index = 5; index <= 7; index++) {
+        if(rollNo[index] == 0) cnt++;
+    }
+
+    if(cnt == 3) return false;
+    return true;
+    
 }
 
 const checkEmail = (email) => {
@@ -67,7 +81,10 @@ const isDigitsOnly = (phoneNo) => {
 }
 
 const checkIfStudentEmail = (email) => {
-    let regex= /^(1[89]|[2-9]\d)(ucs|ucc|uec|ume|dec|dcs|pmt|pph|pme|pcs|pec)(0[0-9]{2}|[1-9][0-9]{2}@lnmiit\.ac\.in$)/;
+    let regex= /^(1[89]|[2-9]\d)(ucs|ucc|uec|ume|dec|dcs|pmt|pph|pme|pcs|pec)(0[0-9]{2}|[1-9][0-9]{2})@lnmiit\.ac\.in$/;
+   
+    //let regex =  /^\d{2}(ucs|ucc|uec|ume|dec|dcs|pmt|pph|pme|pcs)\d{3}@lnmiit\.ac\.in$/;
+
     return regex.test(email);
 }
 
