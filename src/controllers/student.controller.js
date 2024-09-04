@@ -217,7 +217,7 @@ const logoutStudent = asyncHandler(async (req, res) => {
 })
 
 const changePassword = asyncHandler(async (req, res) => {
-    const {oldPassword, newPassword} = req.body
+    let {oldPassword, newPassword} = req.body
     const studentId = req.user?._id
 
     if(!oldPassword || oldPassword.trim() === ""){
@@ -230,6 +230,7 @@ const changePassword = asyncHandler(async (req, res) => {
         throw new ApiError(500, "Error while fetching Student info")
     }
 
+    // oldPassword = oldPassword.trim();
     const isPasswordValid = await student.isPasswordCorrect(oldPassword)
 
     if(!isPasswordValid){
@@ -240,8 +241,8 @@ const changePassword = asyncHandler(async (req, res) => {
         throw new ApiError(400, "New Password is required")
     }
 
-    if(newPassword.length <8 ){
-        throw new ApiError(400,"Passlong length must be of atleast 8 characters")
+    if(newPassword.length < 8){
+        throw new ApiError(400,"Password must be of atleast 8 characters")
     }
 
     checkPassword(newPassword)
