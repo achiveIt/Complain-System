@@ -145,11 +145,11 @@ const loginWarden = asyncHandler(async (req, res) => {
     }
 
     if(checkIfStudentEmail(email)){
-        throw new ApiError(400,"Kindly Login through Student SignUp")
+        throw new ApiError(400,"Kindly Login through Student SignIn")
     }
 
     if(!checkEmail(email)){
-        throw new ApiError(400, "Email provided is not in correct form")
+        throw new ApiError(400, "Kindly provide college email")
     }
 
     if(!password){
@@ -239,6 +239,10 @@ const changePassword = asyncHandler(async (req, res) => {
 
     checkPassword(newPassword)
 
+    if(oldPassword == newPassword){
+        throw new ApiError(400, "Old and New password are both same")
+    }
+    
     warden.password = newPassword
     await warden.save( {validateBeforeSave: false} )
 
