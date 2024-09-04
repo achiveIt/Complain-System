@@ -8,33 +8,39 @@ const wardenSchema= new Schema(
         name:{
             type: String,
             required: [true,"Kindly enter your Name"],
-            toLowerCase: true
+            lowercase: true,
+            trim: true
         },
         position:{
             type: String,
             enum: ['caretaker','warden'],
             required: [true,"Kindly select your position"],
-            toLowerCase: true,
+            lowercase: true,
+            trim: true
         },
         phoneNo:{
             type: String,
             required: [true,"Kindly enter your Phone Numeber"],
+            trim: true
         },
         email:{
             type: String,
             required: [true,"Kindly enter your Email"],
-            toLowerCase: true,
-            unique: true
+            lowercase: true,
+            unique: true,
+            trim: true
         },
         hostel:{
             type: String,
             enum: ['BH1','BH2','BH3','BH4','GH'], 
             reuired: true,
-            toLowerCase: true
+            lowercase: true,
+            trim: true
         },
         password:{
             type: String,
-            reuired: [true, 'Password is required']
+            reuired: [true, 'Password is required'],
+            trim: true
         },
         isVerified:{
             type: Boolean,

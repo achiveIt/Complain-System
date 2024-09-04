@@ -7,27 +7,32 @@ const studentSchema = new Schema(
         name:{
             type: String,
             required: [true,"Kindly enter your Name"],
-            toLowerCase: true         
+            lowercase: true,
+            trim: true         
         },
         rollNo:{
             type: String,
             required: [true,"Kindly enter your Roll Number"],
-            toLowerCase: true,
-            unique: true
+            lowercase: true,
+            unique: true,
+            trim: true
         },
         email:{
             type: String,
             required: [true,"Kindly enter your Email"],
-            toLowerCase: true,
-            unique: true
+            lowercase: true,
+            unique: true,
+            trim: true
         },
         phoneNo:{
             type: String,
             required: [true,"Kindly enter your Phone Numeber"],
+            trim: true
         },
         password:{
             type: String,
-            reuired: [true, 'Password is required']
+            reuired: [true, 'Password is required'],
+            trim: true
         },
         refreshToken:{
             type: String

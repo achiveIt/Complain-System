@@ -43,31 +43,24 @@ const checkPassword = (password) => {
 }
 
 const checkRollNo =  (rollNo) => {
-    // let regex = /\^(1[89] | [0-9]{2})(ucs|ucc|uec|ume|dec|dcs|pmt|pph|pme|pcs)(0[0-9]{2}|[0-9][0-9]{2})$/;
-    let regex = /^\d{2}(ucs|ucc|uec|ume|dec|dcs|pmt|pph|pme|pcs)\d{3}$/;
+    let regex = /^[1-9]\d(ucs|ucc|uec|ume|dec|dcs|pmt|pph|pme|pcs)\d{3}$/;
 
     if(! regex.test(rollNo)){
         return false;
     }
 
-    let cnt = 0;
-
-    for (let index = 5; index <= 7; index++) {
-        if(rollNo[index] == 0) cnt++;
-    }
-
-    if(cnt == 3) return false;
+    if(rollNo[5] == 0 && rollNo[6] == 0 && rollNo[7] == 0) return false;
     return true;
     
 }
 
 const checkEmail = (email) => {
-    let regex= /@lnmiit\.ac\.in$/;
+    let regex = /@lnmiit\.ac\.in$/;
     return regex.test(email);
 }
 
 const isSameEmailRollNo = (email,rollNo) => {
-    let ind=0;
+    let ind = 0;
     for (let index = 0; index < rollNo.length; index++) {
         if(rollNo[index]!=email[ind]) return false;
         ind++;
@@ -76,14 +69,12 @@ const isSameEmailRollNo = (email,rollNo) => {
 }
 
 const isDigitsOnly = (phoneNo) => {
-    let regex =  /^\d+$/  // Regular expression to check if the string contains only digits
+    let regex = /^\d+$/  // Regular expression to check if the string contains only digits
     return regex.test(phoneNo)
 }
 
 const checkIfStudentEmail = (email) => {
-    let regex= /^(1[89]|[2-9]\d)(ucs|ucc|uec|ume|dec|dcs|pmt|pph|pme|pcs|pec)(0[0-9]{2}|[1-9][0-9]{2})@lnmiit\.ac\.in$/;
-   
-    //let regex =  /^\d{2}(ucs|ucc|uec|ume|dec|dcs|pmt|pph|pme|pcs)\d{3}@lnmiit\.ac\.in$/;
+    let regex =  /^[1-9]\d(ucs|ucc|uec|ume|dec|dcs|pmt|pph|pme|pcs)\d{3}@lnmiit\.ac\.in$/;
 
     return regex.test(email);
 }
