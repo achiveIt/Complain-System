@@ -62,7 +62,7 @@ const checkRollNo =  (rollNo) => {
 }
 
 const checkEmail = (email) => {
-    let regex= /^\d{2}[a-z]{3}\d{3}@lnmiit\.ac\.in$/;
+    let regex= /@lnmiit\.ac\.in$/;
     return regex.test(email);
 }
 
