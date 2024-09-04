@@ -230,7 +230,6 @@ const changePassword = asyncHandler(async (req, res) => {
         throw new ApiError(500, "Error while fetching Student info")
     }
 
-    // oldPassword = oldPassword.trim();
     const isPasswordValid = await student.isPasswordCorrect(oldPassword)
 
     if(!isPasswordValid){
