@@ -8,7 +8,7 @@ const sendOtpVerificationMail = async(email) => {
     const checkIfOtpExists = await Otp.findOne({email});
 
     if(checkIfOtpExists && (Date.now() - checkIfOtpExists.createdAt.getTime()) < 5 * 60 * 1000){
-        throw new ApiError(400, "Otp can be requested only after 5 mins")
+        return 400;
     }
     
     const otpGenerated = `${Math.floor(1000 + Math.random()*9000)}`;
@@ -22,7 +22,7 @@ const sendOtpVerificationMail = async(email) => {
     })
 
     if(!newOtp){
-        throw new ApiError(500,"Error while saving Otp")
+        return 500;
     }
 
     try {
@@ -56,7 +56,8 @@ const verifyOtp = async(email, otp) => {
             email
         })
         
-        throw new ApiError(400,"Otp is expired!! Regenerate the Verification Mail")
+        //throw new ApiError(400,"Otp is expired!! Regenerate the Verification Mail")
+        return 300;
     }
     console.log("Comparing");
     
@@ -67,14 +68,19 @@ const verifyOtp = async(email, otp) => {
     console.log(isCorrectOtp);
     
     if(!isCorrectOtp){
-        throw new ApiError(400,"OTP provided is wrong!!")
+        //throw new ApiError(400,"OTP provided is wrong!!")
+        return 400;
+        // return false;
     }
 
     //user verified
     await Otp.deleteMany({
         email
     })
-    return true;
+    // return res
+    // .status(200)
+    // .json(200, {}, "OTP Verified")
+    return 200;
 }
 
 export {

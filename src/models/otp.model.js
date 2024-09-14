@@ -16,7 +16,8 @@ const otpSchema = new Schema({
         default: () => Date.now() + 5 * 60000
     },
     createdAt: {
-        type: Date
+        type: Date,
+        default: Date.now()
     }    
 })
 
