@@ -39,9 +39,9 @@ const registerWarden = asyncHandler(async (req, res) => {
         throw new ApiError(400,"Phone Number should contain digits only!!")
     }
 
-    if(checkIfStudentEmail(email)){
-        throw new ApiError(400, "Kindly register through Student Register")  //useful?
-    }
+    // if(checkIfStudentEmail(email)){
+    //     throw new ApiError(400, "Students are not allowed to register for wardens account")  //useful?
+    // }
 
     if(!checkEmail(email)){
         throw new ApiError(400, "Kindly provide college email")
@@ -70,7 +70,13 @@ const registerWarden = asyncHandler(async (req, res) => {
 
     await newUser.save()
 
-    await sendOtpVerificationMail(email);
+    const response = await sendOtpVerificationMail(email);
+
+    if(response == 400){
+        throw new ApiError(400, "Otp can be requested only after 5 mins")
+    }else if(response == 500){
+        throw new ApiError(500, "Error while Saving OTP")
+    }
 
     return res.status(200).json(
         new ApiResponse(200,{},"Email Verification Mail Sent!!")
@@ -92,9 +98,12 @@ const verifyWardenOtp = asyncHandler(async (req, res) => {
         throw new ApiError(400, "OTP is not provided")
     }
    
-    const response = verifyOtp(email, otp);
+    const response = await verifyOtp(email, otp);
 
-    if(response){
+    console.log(response);
+    
+
+    if(response == 200){
         try {
             const newWarden = await Warden.findOne({email})
         
@@ -114,8 +123,14 @@ const verifyWardenOtp = asyncHandler(async (req, res) => {
                 new ApiResponse(500,{},"Error while Email Verification")
             )    
         }
+    }else if(response == 400){
+        return res.status(200).json(
+            new ApiResponse(400, {}, "Wrong OTP")
+        )
     }else{
-        return res.status(200,{},"Wrong OTP")
+        return res.status(200).json(
+            new ApiResponse(400, {}, "OTP is Expired")
+        )
     }
 })
 
