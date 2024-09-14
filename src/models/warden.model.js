@@ -34,7 +34,7 @@ const wardenSchema= new Schema(
             type: String,
             enum: ['BH1','BH2','BH3','BH4','GH'], 
             reuired: true,
-            lowercase: true,
+            //lowercase: true,
             trim: true
         },
         password:{
