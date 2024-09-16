@@ -99,10 +99,22 @@ const registerStudent =  asyncHandler(async (req, res) => {
 
 const verifyStudentOtp = asyncHandler(async (req, res) => {
     const {email, otp} = req.body;
-    
+
+    if(!email || email.trim() === " "){
+        throw new ApiError(400, "Email is not provided")
+    }
+
+    if(!checkIfStudentEmail(email)){
+        throw new ApiError(400, "Kindly provide college email")
+    }
+
+    if(!otp || otp.trim() === ""){
+        throw new ApiError(400, "OTP is not provided")
+    }
+
     const response = await verifyOtp(email, otp);
     
-    if(response){
+    if(response == 200){
         try {
             const newStudent = await Student.findOne({email})
         
@@ -114,19 +126,24 @@ const verifyStudentOtp = asyncHandler(async (req, res) => {
         
             await newStudent.save( {validateBeforeSave: false} );
 
-            return res.status(200).json( 
-                new ApiResponse(200,newStudent,"Student registered Successfully!!")
-            )
+            return res
+            .status(200)
+            .json(new ApiResponse(200,newStudent,"Student registered Successfully!!"))
         } catch (error) {
             return res
             .status(500)
             .json(new ApiResponse(500,{},"Error while Email Verification"))    
         }
     }
+    else if(response == 400){
+        return res
+        .status(200)
+        .json( new ApiResponse(400, {}, "Wrong OTP"))
+    }
     else{
         return res
         .status(200)
-        .json(new ApiResponse(200,{},"Wrong OTP"))
+        .json(new ApiResponse(400, {}, "OTP is Expired"))
     }
 })
 
