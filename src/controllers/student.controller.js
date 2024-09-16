@@ -322,10 +322,13 @@ const updatePhoneNo = asyncHandler(async (req, res) => {
 const passwordResetRequest = asyncHandler(async (req, res) => {
     const {email} = req.body
 
-    const link = await requestPasswordReset(email)
+    const response = await requestPasswordReset(email)
 
-    if(!link){
-        throw new ApiError(500, "Error while generating link")
+    if(response == 500){
+        throw new ApiError(500, "Error while saving token")
+    }
+    else if(response == 503){
+        throw new ApiError(500, "Error while sending mail")
     }
 
     return res
@@ -361,7 +364,7 @@ const passwordReset = asyncHandler(async (req, res) => {
     
     const response = await verifyResetPasswordToken(token,student.email)
 
-    if(response){
+    if(response == 200){
         try {
             student.password = password
             await student.save( {validateBeforeSave: false} )
@@ -372,6 +375,9 @@ const passwordReset = asyncHandler(async (req, res) => {
         } catch (error) {
             throw new ApiError(500, error.message)
         }
+    }
+    else if(response == 400){
+        throw new ApiError(400, "Invalid or expired password reset Token")
     }
     else{
         throw new ApiError(500, "Password reset failed")
