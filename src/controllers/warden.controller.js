@@ -206,9 +206,7 @@ const loginWarden = asyncHandler(async (req, res) => {
     .status(200)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
-    .json(
-        new ApiResponse(200,{updateWarden,accessToken,refreshToken},"Logged in successfully!!")
-    )
+    .json(new ApiResponse(200,{updateWarden,accessToken,refreshToken},"Logged in successfully!!"))
 })
 
 const logOutWarden = asyncHandler(async (req, res) => {
@@ -305,15 +303,18 @@ const updatePhoneNo = asyncHandler(async (req, res) => {
 const passwordResetRequest = asyncHandler(async (req, res) => {
     const {email} = req.body
 
-    const link = await requestPasswordReset(email)
+    const response = await requestPasswordReset(email)
 
-    if(!link){
-        throw new ApiError(500, "Error while generating link")
+    if(response == 500){
+        throw new ApiError(500, "Error while saving token")
+    }
+    else if(response == 503){
+        throw new ApiError(500, "Error while sending mail")
     }
 
     return res
     .status(200)
-    .json(new ApiResponse(200,link,"Password Reset Link Successfully Send"))
+    .json(new ApiResponse(200,response,"Password Reset Link Successfully Send"))
 })
 
 const passwordReset = asyncHandler(async (req, res) => {
@@ -344,7 +345,7 @@ const passwordReset = asyncHandler(async (req, res) => {
     
     const response = await verifyResetPasswordToken(token,warden.email)
 
-    if(response){
+    if(response == 200){
         try {
             warden.password = password
             await warden.save( {validateBeforeSave: false} )
@@ -355,6 +356,9 @@ const passwordReset = asyncHandler(async (req, res) => {
         } catch (error) {
             throw new ApiError(500, error.message)
         }
+    }
+    else if(response == 400){
+        throw new ApiError(400, "Invalid or expired password reset Token")
     }
     else{
         throw new ApiError(500, "Password reset failed")
