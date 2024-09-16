@@ -100,9 +100,6 @@ const verifyWardenOtp = asyncHandler(async (req, res) => {
    
     const response = await verifyOtp(email, otp);
 
-    console.log(response);
-    
-
     if(response == 200){
         try {
             const newWarden = await Warden.findOne({email})
@@ -115,22 +112,25 @@ const verifyWardenOtp = asyncHandler(async (req, res) => {
         
             await newWarden.save( {validateBeforeSave: false} );
 
-            return res.status(200).json( 
-                new ApiResponse(200,newWarden,"Warden registered Successfully!!")
-            )
+            return res
+            .status(200)
+            .json(new ApiResponse(200,newWarden,"Warden registered Successfully!!"))
+
         } catch (error) {
-            return res.status(500).json( 
-                new ApiResponse(500,{},"Error while Email Verification")
-            )    
+            return res
+            .status(500)
+            .json(new ApiResponse(500,{},"Error while Email Verification"))    
         }
-    }else if(response == 400){
-        return res.status(200).json(
-            new ApiResponse(400, {}, "Wrong OTP")
-        )
-    }else{
-        return res.status(200).json(
-            new ApiResponse(400, {}, "OTP is Expired")
-        )
+    }
+    else if(response == 400){
+        return res
+        .status(200)
+        .json( new ApiResponse(400, {}, "Wrong OTP"))
+    }
+    else{
+        return res
+        .status(200)
+        .json(new ApiResponse(400, {}, "OTP is Expired"))
     }
 })
 
