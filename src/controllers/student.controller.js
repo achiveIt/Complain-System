@@ -154,11 +154,18 @@ const regenerateOtp = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Email field cannot be empty")
     }
 
-    if(!checkEmail(email)){
-        throw new ApiError (400, "Enter college email Id")
+    if(!checkIfStudentEmail(email)){
+        throw new ApiError (400, "Kindly provide college email")
     }
 
-    await sendOtpVerificationMail(email)
+    const response = await sendOtpVerificationMail(email);
+
+    if(response == 400){
+        throw new ApiError(400, "Otp can be requested only after 5 mins")
+    }
+    else if(response == 500){
+        throw new ApiError(500, "Error while Saving OTP")
+    }
 
     return res
     .status(200)
