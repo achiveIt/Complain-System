@@ -333,7 +333,7 @@ const passwordResetRequest = asyncHandler(async (req, res) => {
 
     return res
     .status(200)
-    .json(new ApiResponse(200,link,"Password Reset Link Successfully Send"))
+    .json(new ApiResponse(200,response,"Password Reset Link Successfully Send"))
 })
 
 const passwordReset = asyncHandler(async (req, res) => {
