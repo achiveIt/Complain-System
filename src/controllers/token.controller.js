@@ -5,7 +5,6 @@ import mailSender from "../utils/MailSender.js";
 import crypto from "crypto";
 
 const requestPasswordReset = async(email) => {
-    
     //delete any previous Token if they exist
     await Token.deleteMany({email}); 
 
@@ -21,7 +20,7 @@ const requestPasswordReset = async(email) => {
     })
 
     if(!saveToken){
-        throw new ApiError(500, "Error while creating Token")
+        return 500;
     }
 
     const link = `${process.env.CLIENT_URL}/passwordReset?Token=${newToken}`
@@ -38,10 +37,9 @@ const requestPasswordReset = async(email) => {
         console.log("Email sent successfully: ", mailResponse);
 
         return link;
-
     } catch (error) {
         console.log("Error occurred while sending email: ", error);
-        throw error;
+        return 503;
     }
 }
 
@@ -50,7 +48,7 @@ const verifyResetPasswordToken = async(token, email) => {
         const passwordResetToken = await Token.findOne({email})
         
         if(!passwordResetToken){
-            throw new ApiError(400, "Invalid or expired password reset Token");
+            return 400;
         }
     
         const hashedToken = passwordResetToken.tokenGenerated
@@ -58,14 +56,14 @@ const verifyResetPasswordToken = async(token, email) => {
         const isValidToken = await bcrypt.compare(token, hashedToken)
     
         if(!isValidToken){
-            throw new ApiError(400, "Invalid or expired password reset Token")
+            return 400;
         }
 
         await passwordResetToken.deleteOne()
     
-        return true
+        return 200;
     } catch (error) {
-        throw new ApiError(500,error.message)
+        return 500;
     }
 }
 
