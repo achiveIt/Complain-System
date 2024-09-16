@@ -84,7 +84,13 @@ const registerStudent =  asyncHandler(async (req, res) => {
     await newStudent.save();
     
     //Nodemailer OTP verification 
-    await sendOtpVerificationMail(email);
+    const response = await sendOtpVerificationMail(email);
+
+    if(response == 400){
+        throw new ApiError(400, "Otp can be requested only after 5 mins")
+    }else if(response == 500){
+        throw new ApiError(500, "Error while Saving OTP")
+    }
 
     return res
     .status(200)
