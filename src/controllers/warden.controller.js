@@ -78,9 +78,9 @@ const registerWarden = asyncHandler(async (req, res) => {
         throw new ApiError(500, "Error while Saving OTP")
     }
 
-    return res.status(200).json(
-        new ApiResponse(200,{},"Email Verification Mail Sent!!")
-    )
+    return res
+    .status(200)
+    .json(new ApiResponse(200,{},"Email Verification Mail Sent!!"))
 })
 
 const verifyWardenOtp = asyncHandler(async (req, res) => {
@@ -145,7 +145,13 @@ const regenerateOtp = asyncHandler(async (req, res) => {
         throw new ApiError (400, "Enter college email Id")
     }
 
-    await sendOtpVerificationMail(email)
+    const response = await sendOtpVerificationMail(email);
+
+    if(response == 400){
+        throw new ApiError(400, "Otp can be requested only after 5 mins")
+    }else if(response == 500){
+        throw new ApiError(500, "Error while Saving OTP")
+    }
 
     return res
     .status(200)
