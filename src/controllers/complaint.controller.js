@@ -13,23 +13,40 @@ const createComplaint = asyncHandler(async (req, res) => {
     if(
         [hostel, floor, location, type, desc, preferedDateandTime].some((field) => field?.trim() === "")
     ){
-        throw new ApiError(400, "All fields are required")
+        //throw new ApiError(400, "All fields are required")
+        return res
+                .status(400)
+                .json(
+                    new ApiResponse(400, " ", "ALL fields are compulsory")
+                )
     }
 
     if(!isValidObjectId(student)){
-        throw new ApiError(400, "Invalid user id")
+        return res
+                .status(401)
+                .json(
+                    new ApiResponse(401, " ", "Invalid student id")
+                )
     }
 
     const photoLocalPath = req.files?.photo[0]?.path
 
     if(!photoLocalPath){
-        throw new ApiError(400, "photo is required")
+        return res
+                .status(400)
+                .json(
+                    new ApiResponse(400, " ", "ALL fields are compulsory")
+                )
     }
 
     const photo = await uploadOnCloudinary(photoLocalPath)
 
     if(!photo){
-        throw new ApiError(400, "Error while uploading photo")
+        return res
+                .status(501)
+                .json(
+                    new ApiResponse(501, " ", "Error while uploading photos")
+                )
     }
 
     const complaint = await Complaint.create(
@@ -45,10 +62,14 @@ const createComplaint = asyncHandler(async (req, res) => {
         }
     )
 
-    const addedComplaint = await Complaint.findById(video._id);
+    const addedComplaint = await Complaint.findById(complaint._id);
 
     if(!addedComplaint){
-        throw new ApiError(500, "Error while adding complaint please try again...")
+        return res
+                .status(500)
+                .json(
+                    new ApiResponse(500, " ", "Error while adding complaint")
+                )
     }
 
     return res
@@ -65,11 +86,19 @@ const changeComplaintStatus = asyncHandler(async (req, res) => {
     const {status} = req.body
 
     if(!isValidObjectId(userId)){
-        throw new ApiError(400, "Invalid user id")
+        return res
+                .status(401)
+                .json(
+                    new ApiResponse(401, " ", "Invalid student id")
+                )
     }
 
     if(!isValidObjectId(complaintId)){
-        throw new ApiError(400, "Invalid comaplint id")
+        return res
+                .status(401)
+                .json(
+                    new ApiResponse(401, " ", "Invalid complaint id")
+                )
     }
 
     const complaint = await Complaint.findByIdAndUpdate(
@@ -92,7 +121,11 @@ const addComplaintReminder = asyncHandler(async (req, res) => {
     const {complaintId} = req.params
 
     if(!isValidObjectId(complaintId)){
-        throw new ApiError(400, "Invalid Compalint Id")
+        return res
+                .status(401)
+                .json(
+                    new ApiResponse(401, " ", "Invalid complaint id")
+                )
     }
 
     const complaint = await Complaint.findById(complaintId);
