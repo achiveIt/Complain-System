@@ -1,2 +1,1 @@
-A Complaint Registration Portal
-LIVE PROJECT :- https://complaint-system-client.vercel.app/
+A Complaint Registration Portal :- https://complaint-system-client.vercel.app/
